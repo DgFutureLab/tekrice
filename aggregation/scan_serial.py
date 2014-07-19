@@ -86,13 +86,17 @@ def upload_daemon(name, is_running):
 			pending_readings = get_data_in_queue()
 			for reading in pending_readings:
 				url = get_url(reading['node_id'], reading['alias'])
-				data = {'value' : reading['value'], 'timestamp' : reading['timestamp']}
 				try:
-					response = requests.put(url, data = data)
-					logger.info('Sent data: %s'%data)
-					logger.debug(response.text)
-				except requests.ConnectionError:
-					logger.warning('Could not connect to host. Discarding data: %s'%reading)
+					data = {'value' : reading['value'], 'timestamp' : reading['timestamp']}
+				except KeyError:
+					data = {}
+				if data:
+					try:
+						response = requests.put(url, data = data)
+						logger.info('Sent data: %s'%data)
+						logger.debug(response.text)
+						except requests.ConnectionError:
+						logger.warning('Could not connect to host. Discarding data: %s'%reading)
 
 		time.sleep(UPLOAD_INTERVAL)
 
