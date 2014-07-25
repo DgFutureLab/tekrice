@@ -67,16 +67,16 @@ def read_serial(name, is_running):
 			previous_reading = reading
 			parsed_reading = parse_reading(reading)
 			for i, p in enumerate(parsed_reading):
-				print i
 				try:
 					queue.put_nowait(p)
 				except Full:
-					discarded_reading = queue.get_nowait()
+					for i in range(10):
+						discarded_reading = queue.get_nowait()
 					queue.put_nowait(p)
 					try:
 						logger.warning('Full queue. Discarding data: %s'%(queue.qsize(), discarded_reading))
 					except TypeError:
-						logger.warning('Full queue. Discarded')
+						logger.warning('Full queue. Discarded old data.')
 					
 		
 		logger.debug('Data from serial: %s'%reading)
@@ -90,6 +90,7 @@ def upload_daemon(name, is_running):
 	while is_running.isSet():
 		if not queue.empty():
 			pending_readings = get_data_in_queue()
+			logger.info('Number of pending readings: %s'%len(pending_readings))
 			for reading in pending_readings:
 				url = get_url(reading['node_id'], reading['alias'])
 				try:
@@ -108,10 +109,10 @@ def upload_daemon(name, is_running):
 
 def get_data_in_queue():
 	data_list = list()
-	print 'QUEUE_SIZE BEFORE', queue.qsize()
+	#print 'QUEUE_SIZE BEFORE', queue.qsize()
 	for i in range(queue.qsize()):
 		data_list.append( queue.get_nowait() )
-	print 'QUEUE_SIZE AFTER', queue.qsize()
+	#print 'QUEUE_SIZE AFTER', queue.qsize()
 	return data_list
 
 
