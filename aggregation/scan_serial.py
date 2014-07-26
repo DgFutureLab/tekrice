@@ -91,19 +91,21 @@ def upload_daemon(name, is_running):
 		if not queue.empty():
 			pending_readings = get_data_in_queue()
 			logger.info('Number of pending readings: %s'%len(pending_readings))
+			print 'Queue size: %s'%queue.qsize()
 			for reading in pending_readings:
-				url = get_url(reading['node_id'], reading['alias'])
-				try:
-					data = {'value' : reading['value'], 'timestamp' : reading['timestamp']}
+				if reading['alias'] == 'distance':
+					url = get_url(reading['node_id'], reading['alias'])
 					try:
-						response = requests.put(url, data = data)
-						logger.info('Sent data: %s'%data)
-						logger.debug(response.text)
-						response.close()
-					except requests.ConnectionError:
-						logger.warning('Could not connect to host. Discarding data: %s'%reading)
-				except KeyError:
-					pass
+						data = {'value' : reading['value'], 'timestamp' : reading['timestamp']}
+						try:
+							response = requests.put(url, data = data)
+							logger.info('Sent data: %s to url: %s'%(data, url))
+							logger.debug(response.text)
+							response.close()
+						except requests.ConnectionError:
+							logger.warning('Could not connect to host. Discarding data: %s'%reading)
+					except KeyError:
+						pass
 		time.sleep(UPLOAD_INTERVAL)
 
 
