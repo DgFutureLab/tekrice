@@ -2,6 +2,8 @@
 
 /* 
   Basic transmitting node sending a message out to an aggregator node
+  
+  Written by Halfdan Rump for Future Lab. Based on code written by Christopher Wang aka Akiba.
 */
 
 #include <chibi.h>
@@ -19,6 +21,7 @@ byte msg[] = "exec";
 
 void setup()
 {
+  Serial.begin(57600);
   chibiInit();
   chibiSetShortAddr(DEVICE_SHORT_ADDRESS);
 }
@@ -31,4 +34,6 @@ void loop()
 
   // delay between transmission
   delay(SEND_INTERVAL);
+//  Serial.print("Sent message ");
+//  Serial.println((char *)msg);
 }
