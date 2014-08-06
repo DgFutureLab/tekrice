@@ -9,7 +9,7 @@ def static_wall():
 def store_temperature():
 	temperature = request.data
 	print temperature
-	socketio.emit('new serial data', {'color':temperature}, namespace = '/serial')
+	socketio.emit('new serial data', {'temperature':temperature}, namespace = '/serial')
 	return 'OK'
 
 @socketio.on('request serial data', namespace = '/serial')

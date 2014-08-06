@@ -13,7 +13,7 @@ from argparse import ArgumentParser
 import json
 
 logger = Logger(__name__)
-logger.setLevel('DEBUG')
+logger.setLevel('INFO')
 filehandler = RotatingFileHandler('log.txt', maxBytes = 10**6)
 streamhandler = StreamHandler(sys.stdout)
 formatter = Formatter('%(asctime)s - %(thread)d - %(levelname)s - %(message)s')
@@ -26,8 +26,9 @@ parser = ArgumentParser()
 parser.add_argument('-r', '--remote-host', help = 'Server IP address e.g., 107.170.251.142')
 parser.add_argument('-b', '--baud', help = 'Serial port baud rate (default 57600)', default = 57600)
 parser.add_argument('-q', '--queue_size', help = 'The size of the queue that functions as a buffer between Serial-to-Internet', default = 100)
-parser.add_argument('-u', '--upload_interval', help = 'Interval in seconds (can be float) between uploading to the server', default = 1)
+parser.add_argument('-u', '--upload_interval', help = 'Interval in seconds (can be float) between uploading to the server', default = 5)
 parser.add_argument('-p', '--port', help = 'Port on the server', default = 8080)
+parser.add_argument('-d', '--debug_level', help = 'Port on the server', default = 8080)
 
 args = parser.parse_args()
 
@@ -71,7 +72,7 @@ def read_serial(name, is_running):
 				logger.warning('Full queue. Discarding reding: %s'%reading)
 			previous_reading = reading
 		
-		logger.debug('Data from serial: %s'%reading)
+		logger.info('Data from serial: %s'%reading)
 		time.sleep(0.1)
 	
 	serial_connection.close()
@@ -117,7 +118,7 @@ if __name__ == "__main__":
 		data_sender = Thread(target = upload_daemon, args = ('Data sender', is_running))
 		data_sender.start()
 	else:
-		print 'ATTENTION: Running without remote host, so no data is being sent to server'
+		logger.warning('ATTENTION: Running without remote host, so no data is being sent to server')
 	
 	try:
 		while True:
