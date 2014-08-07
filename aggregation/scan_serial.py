@@ -26,7 +26,7 @@ parser = ArgumentParser()
 parser.add_argument('-r', '--remote-host', help = 'Server IP address e.g., 107.170.251.142')
 parser.add_argument('-b', '--baud', help = 'Serial port baud rate (default 57600)', default = 57600)
 parser.add_argument('-q', '--queue_size', help = 'The size of the queue that functions as a buffer between Serial-to-Internet', default = 100)
-parser.add_argument('-u', '--upload_interval', help = 'Interval in seconds (can be float) between uploading to the server', default = 5)
+parser.add_argument('-u', '--upload_interval', help = 'Interval in seconds (can be float) between uploading to the server', default = 1)
 parser.add_argument('-p', '--port', help = 'Port on the server', default = 8080)
 parser.add_argument('-d', '--debug_level', help = 'Port on the server', default = 8080)
 
@@ -41,6 +41,7 @@ def open_serial_device():
 		device = '/dev/' + filter(lambda x: re.match('tty.usb*', x), os.listdir('/dev'))[0]
 		serial_device = serial.Serial(device, args.baud, timeout = 5)
 		logger.debug('Opening device %s'%device)
+		
 		return serial_device
 	except IndexError:
 		logger.error("Couldn't find any arduino devices. Are you sure it's plugged in? :)")
@@ -49,7 +50,7 @@ def open_serial_device():
 
 
 def with_timestamp(message):
-	return str(time.time()) + '; ' + message
+	return str(time.time()) + ',' + message
 
 def read_serial(name, is_running):
 	logger.debug('Running %s daemon'%name)
@@ -84,10 +85,11 @@ def upload_daemon(name, is_running):
 	while is_running.isSet():
 		try:
 			data = get_data_in_queue()
-			logger.debug(json.dumps(data))
-			request = urllib2.Request(url, data = json.dumps(data), headers = {'Content-Type':'text/plain'})
-			response = urllib2.urlopen(request)
-			logger.debug(response)
+			if data:
+				logger.debug(json.dumps(data))
+				request = urllib2.Request(url, data = json.dumps(data), headers = {'Content-Type':'text/plain'})
+				response = urllib2.urlopen(request)
+				logger.debug(response)
 		except Empty:
 			pass
 		time.sleep(args.upload_interval)

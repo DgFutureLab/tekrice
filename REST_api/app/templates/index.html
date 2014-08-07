@@ -1,10 +1,10 @@
-<!doctype html>
+{% extends "bootstrap/base.html" %}
+{% block title %}Temperature!{% endblock %}
 
-<html lang="en">
-<head>
+{% block head %}
+  {{ super() }}
   <meta charset="utf-8">
 
-  <title>DG IMAGE WALL</title>
   <meta name="description" content="Digital Garage event pictures">
   <meta name="author" content="Halfdan Rump">
 
@@ -14,27 +14,25 @@
   <script src="/static/javascript/jquery-2.1.0.min.js"></script>
   
   <script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/socket.io/0.9.16/socket.io.min.js"></script>
-  <link rel="stylesheet" type="text/css" href="static/stylesheets/style.css">
-  <link rel="stylesheet" type="text/css" href="static/stylesheets/smw.css" />  
 
-  <!--[if lt IE 9]>
-  <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-  <![endif]-->
   <script type="text/javascript" charset="utf-8">
        
 
     $(document).ready(function(){
       var socket = io.connect('http://' + document.domain + ':' + location.port + '/serial');
       console.log('asd');
-      // $("#magicbox").css("background-color", "#FF00FF");
+
       socket.on('new serial data', function(msg){
-        // console.log("Received serial data");
-        // console.log(msg.reading);
-        // var css = "background-color: " + msg.color + ";";
+
         console.log(msg.temperature);
-        // $( "#body" ).html( "<div style='width:100%; height:1200px; -webkit-transition: background-color 100ms linear; background-color:" + msg.color + ";'><h1>FUTURE OF WEB DESIGN</h1></div>." );
-        // $('#magicbox').css("background-color", msg.color);
-        $('#body').append(msg.temperature)
+
+        if (msg.temperature[0].indexOf("ddr: 5") >= 0){
+            $('#hatake2').append('<h3>' + msg.temperature[0] + '</h3>');
+            $('#hatake1').append('<h3>' + msg.temperature[1] + '</h3>');  
+        }else{
+            $('#hatake1').append('<h3>' + msg.temperature[0] + '</h3>');
+            $('#hatake2').append('<h3>' + msg.temperature[1] + '</h3>');  
+        }
       });
 
       socket.emit('request serial data', function(msg){
@@ -44,8 +42,19 @@
     });
     
   </script>
-</head>
+{% endblock %}
 
-<body id="body">
-</body>
-</html>
+
+{% block content %}
+
+  <div class="container">
+    <div class="row">      
+      <div id="hatake1" class="col-md-6" style="background-color: #e5f5e0">
+            <h1>畑１の温度</h1><br/> 
+      </div>
+      <div id="hatake2" class="col-md-6" style="background-color: #a1d99b">
+            <h1>畑２の温度</h1><br/>
+      </div>
+    </div>
+  </div>
+{% endblock %}
