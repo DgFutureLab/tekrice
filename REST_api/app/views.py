@@ -1,7 +1,7 @@
 # coding: utf-8
 from app import flapp, socketio
 from flask import render_template, request
-import time
+import datetime
 import json
 @flapp.route('/')
 def static_wall():
@@ -19,6 +19,6 @@ def respond_to_data_requiest():
 def format_data(sensor_data):
 
 	sensor_data = map(lambda s: dict(zip(['time', 'addr', u'reading(°C)'], s.split(','))), sensor_data)
-	# sensor_data = map(lambda row: row.update({'time': time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(float(row['time'])))}), sensor_data)
+	for reading in sensor_data: reading.update({'time': datetime.datetime.fromtimestamp(float(reading['time'])).strftime('%Y-%m-%d %H:%M:%S')})
 	sensor_data = map(lambda d: ', '.join(['%s: %s'%(k,v) for k,v in d.items()]), sensor_data)
 	return sensor_data
