@@ -3,7 +3,8 @@ def config_production(flapp):
 			DEBUG = False,
 			PROPAGATE_EXCEPTIONS = False,
 			HOST = 'http://107.170.251.142',
-			PORT = '80'
+			PORT = '80',
+			SQLALCHEMY_DATABASE_URI = "postgresql://halfdan:halfdan@localhost/tekrice_prod"
 		)
 
 def config_development(flapp):
@@ -11,6 +12,9 @@ def config_development(flapp):
 			DEBUG = True,
 			PROPAGATE_EXCEPTIONS = True,
 			HOST = 'http://120.0.0.1',
-			PORT = '8080'
+			PORT = '8080',
+			SQLALCHEMY_DATABASE_URI = "postgresql://halfdan:halfdan@localhost/tekrice_dev"
 		)
+
+
 
