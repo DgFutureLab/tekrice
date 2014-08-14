@@ -36,38 +36,22 @@ readings = dict()
 class SensorResource(restful.Resource):
 	
 
-	def get(self, location, sensor_type):
+	def get(self, node, sensor_type):
 		""" 
 		REST GET handler. Query database and return json dump of retrieved object(s)
 		"""
-		key = (location, sensor_type)
+		key = (node, sensor_type)
 		if readings.has_key(key):
-			return {'value':readings[(location, sensor_type)]}
+			return {'value':readings[(node, sensor_type)]}
 		else:
 			return {'value': 'EMPTY'}
 
-	def put(self, location, sensor_type):
-		readings[(location, sensor_type)] = request.data
+	def put(self, node, sensor_type):
+		readings[(node, sensor_type)] = request.data
 		print readings
 		return 'OK'
 
-
 		# return json.dumps({'value':self.value, 'unit': repr(self.unit), 'timestamp': self.timestamp})
 	
-class dataModel:
-	def __init__(self, value, unit, timestamp):
-		""" 
-		Rudimentary data model for sensor data 
-		"""
-		assert isinstance(value, int or float)
-		assert isinstance(value, Unit)
-		assert isinstance(timestamp, datetime)
-		self.value = value
-		self.unit = unit
-		self.timestamp = timestamp
-
-	def convert_to_unit(self, new_unit, inplace = False):
-		pass
-
-rest_api.add_resource(SensorResource, '/sensors/<string:location>/<string:sensor_type>')
+rest_api.add_resource(SensorResource, '/<string:node>/<string:sensor_type>')
 
