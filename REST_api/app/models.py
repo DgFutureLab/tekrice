@@ -29,7 +29,7 @@ class Node(Base):
 		if kwargs.has_key('uuid'): 
 			self.uuid = kwargs['uuid']
 		else:
-			self.uuid = uuid.uuid4()
+			self.uuid = uuid.uuid4().hex
 
 		if kwargs.has_key('location'): 
 			self.location = kwargs['location']
@@ -52,9 +52,13 @@ class Sensor(Base):
 		if kwargs.has_key('uuid'): 
 			self.uuid = kwargs['uuid']
 		else:
-			self.uuid = uuid.uuid4()
+			self.uuid = uuid.uuid4().hex
+		
 		if kwargs.has_key('unit'): 
 			self.unit = kwargs['unit']
+
+		if kwargs.has_key('node'):
+			self.node = kwargs['node']
 
 	
 
@@ -71,11 +75,14 @@ class Reading(Base):
 	def __init__(self, **kwargs):
 		if kwargs.has_key('timestamp'): 
 			self.timestamp = kwargs['timestamp']		
+
 		if kwargs.has_key('value'): 
 			self.value = kwargs['value']
 
-	def __init__(self, timestamp, value):
-		self.timestamp 
+		if kwargs.has_key('sensor'):
+			self.sensor = kwargs['sensor']
+
+
 		
 
 
