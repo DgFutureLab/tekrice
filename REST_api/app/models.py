@@ -20,7 +20,7 @@ class Node(Base):
 	
 	id = Column( Integer, primary_key = True )
 	uuid = Column( String(), unique = True )
-	name = Column( String(100) )
+	alias = Column( String(100) )
 	location = Column( String(100) )
 	
 	sensors = relationship('Sensor', backref = 'node')
@@ -34,8 +34,8 @@ class Node(Base):
 		if kwargs.has_key('location'): 
 			self.location = kwargs['location']
 
-		if kwargs.has_key('name'): 
-			self.name = kwargs['name']
+		if kwargs.has_key('alias'): 
+			self.alias = kwargs['alias']
 
 @create
 class Sensor(Base):
