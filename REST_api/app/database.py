@@ -26,3 +26,30 @@ def init_db():
 def recreate():
 	nuke_db()
 	init_db()
+
+def db_demo():
+	from models import Node, Sensor, SensorType, Reading
+	from datetime import datetime
+	import time
+	from random import gauss
+
+	sensortype = SensorType.create(name = 'Qartz thermometer', unit = 'Celcius')
+	node = Node.create(alias = 'ricefield1')
+	sensor1 = Sensor.create(sensortype = sensortype, node = node, alias = 'CPU temperature')
+	sensor2 = Sensor.create(sensortype = sensortype, node = node, alias = 'Ambient air temperature')
+	for i in range(5):
+		Reading.create(sensor = sensor1, value = gauss(80, 0.1), timestamp = datetime.now())
+		time.sleep(0.1)
+
+	for i in range(5):
+		Reading.create(sensor = sensor2, value = gauss(25, 0.1), timestamp = datetime.now())
+		time.sleep(0.1)
+
+	print
+	print 'NODE:\t', node.describe()
+	print
+	print 'SENSOR1:\t', sensor1.describe()
+	print
+	print 'SENSOR2:\t', sensor2.describe()
+
+	return node, sensor1, sensor2

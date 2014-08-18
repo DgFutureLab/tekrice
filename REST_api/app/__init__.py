@@ -1,6 +1,4 @@
 from flask import Flask
-import flask_rest
-
 flapp = Flask(__name__)
 
 ### Use Twitter Bootstrap
