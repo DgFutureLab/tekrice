@@ -4,6 +4,11 @@ from flask import render_template, request
 import datetime
 import json
 
+from flask_wtf import Form
+from wtforms import StringField
+from wtforms.validators import DataRequired
+
+from forms import NodeForm
 
 @flapp.route('/')
 def index():
@@ -28,3 +33,13 @@ def format_data(sensor_data):
 	for reading in sensor_data: reading.update({'time': datetime.datetime.fromtimestamp(float(reading['time'])).strftime('%Y-%m-%d %H:%M:%S')})
 	sensor_data = map(lambda d: ', '.join(['%s: %s'%(k,v) for k,v in d.items()]), sensor_data)
 	return sensor_data
+
+# Admin tool
+@flapp.route('/admin', methods =['GET'])
+def admin_top():
+	return render_template('admin/index.html')
+
+@flapp.route('/admin/addnode', methods =['GET'])
+def add_node():
+	form = NodeForm(request.form)
+	return render_template('admin/add_node.html', form=form)

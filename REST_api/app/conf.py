@@ -13,8 +13,7 @@ def config_development(flapp):
 			PROPAGATE_EXCEPTIONS = True,
 			HOST = 'http://120.0.0.1',
 			PORT = '8080',
-			SQLALCHEMY_DATABASE_URI = "postgresql://halfdan:halfdan@localhost/tekrice_dev"
+			SQLALCHEMY_DATABASE_URI = "postgresql://halfdan:halfdan@localhost/tekrice_dev",
+			CSRF_ENABLED = True,
+			SECRET_KEY = 'you-will-never-guess'
 		)
-
-
-
