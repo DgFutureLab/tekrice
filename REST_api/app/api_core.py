@@ -4,6 +4,7 @@ import json
 from flask.ext import restful
 from flask import request
 from app.models import Node, Sensor, Reading
+from sqlalchemy.exc import IntegrityError
 
 API_UNITS = {
 	'm':'SI meters', 
@@ -33,11 +34,27 @@ class Unit:
 
 
 readings = dict()
-
+import inspect
 class NodeResource(restful.Resource):
 	def get(self, uid):
 		node = Node.query.filter_by(uuid = uid).first()
-		return {}
+		return {'node':node}
+
+	def post(self, uid):
+		# print dict(request.form)
+		if request.form.has_key('alias'):
+			alias = request.form['alias']
+			print type(alias)
+		
+		# try:
+		node = Node.create(uuid = uid)
+		return {'node': str(node)}
+		# return {'node': node.__repr__()}
+			# except IntegrityError:
+			# 	return {'fukka you!':'node already exists...'}
+			# except Exception, e:
+			# 	return {'exception':json.dumps(e)}
+
 
 rest_api.add_resource(NodeResource, '/node/<string:uid>')
 
