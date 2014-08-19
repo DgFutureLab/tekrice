@@ -86,7 +86,7 @@ class SensorType(Base):
 			self.alias = kwargs['alias']
 
 	def json_detailed(self):
-		return {'type': '<SensorType>', 'name': self.name, 'unit': self.unit, 'sensors':map(lambda s: s.json_summary(), self.sensors, 'id': self.id)}
+		return {'type': '<SensorType>', 'name': self.name, 'unit': self.unit, 'sensors':map(lambda s: s.json_summary(), self.sensors), 'id': self.id}
 
 	def json_summary(self):
 		return {'type': '<SensorType>', 'name': self.name, 'id': self.id}
@@ -188,7 +188,6 @@ class Reading(Base):
 
 	def __repr__(self):
 		return json.dumps(self.json_summary())
-#
 
 		
 
