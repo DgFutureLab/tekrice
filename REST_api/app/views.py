@@ -18,7 +18,7 @@ def emit_temperature():
 	return 'OK'
 
 @socketio.on('request serial data', namespace = '/serial')
-def respond_to_data_requiest():
+def respond_to_data_request():
 	flapp.logger.debug('Got request for data')
 
 
