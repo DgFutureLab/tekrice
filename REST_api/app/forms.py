@@ -3,4 +3,5 @@ from wtforms import StringField
 from wtforms.validators import DataRequired
 
 class NodeForm(Form):
-    name = StringField('name', validators=[DataRequired()])
+	uuid = StringField('uuid', validators=[DataRequired()])
+	alias = StringField('alias', validators=[DataRequired()])

@@ -9,6 +9,7 @@ from wtforms import StringField
 from wtforms.validators import DataRequired
 
 from forms import NodeForm
+from app.models import Node
 
 @flapp.route('/')
 def index():
@@ -43,3 +44,10 @@ def admin_top():
 def add_node():
 	form = NodeForm(request.form)
 	return render_template('admin/add_node.html', form=form)
+
+@flapp.route('/admin/addnode/submit', methods=('GET', 'POST'))
+def submit():
+   print request.form
+   node = Node.create(uuid = request.form['uuid'], alias = request.form['alias'])
+
+   return 'OK'
