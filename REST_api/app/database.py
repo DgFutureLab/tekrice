@@ -46,10 +46,10 @@ def db_demo():
 		time.sleep(0.1)
 
 	print
-	print 'NODE:\t', node.describe()
+	print 'NODE:\t', node.json_detailed()
 	print
-	print 'SENSOR1:\t', sensor1.describe()
+	print 'SENSOR1:\t', sensor1.json_detailed()
 	print
-	print 'SENSOR2:\t', sensor2.describe()
+	print 'SENSOR2:\t', sensor2.json_detailed()
 
 	return node, sensor1, sensor2
