@@ -3,6 +3,8 @@ from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Float
 from sqlalchemy.orm import relationship
 import uuid
 from collections import Iterable
+import json
+from app import flapp
 
 class ExpectedFieldException(Exception):
 	def __init__(self, field):
@@ -28,7 +30,7 @@ class Node(Base):
 	__tablename__ = 'nodes'
 	
 	id = Column( Integer, primary_key = True )
-	uuid = Column( String(32), unique = True )
+	uuid = Column( String(32), unique = True)
 	alias = Column( String(100) )
 	sensors = relationship('Sensor', backref = 'node')
 
@@ -49,11 +51,14 @@ class Node(Base):
 			else:
 				self.sensors.append(sensors)
 
-	def describe(self):
-		return '<Node> uuid: %s, alias: %s, sensors: [%s]'%(self.uuid, self.alias, ', '.join(map(lambda x: x.__repr__(), self.sensors)))
+	def json_detailed(self):
+		return {'type': '<Node>', 'uuid': self.uuid, 'alias':self.alias, 'sensors': map(lambda s: s.json_summary(), self.sensors)}
 
+	def json_summary(self):
+		return {'type': '<Node>', 'uuid': self.uuid, 'alias':self.alias}
+	
 	def __repr__(self):
-		return '<Node> %s'%self.alias
+		return json.dumps(self.json_summary())
 
 
 @create
@@ -80,11 +85,15 @@ class SensorType(Base):
 		if kwargs.has_key('alias'):
 			self.alias = kwargs['alias']
 
-	def describe(self):
-		return '<SensorType> name: %s, unit: %s'%(self.name, self.unit)
+	def json_detailed(self):
+		return {'type': '<SensorType>', 'name': self.name, 'unit': self.unit, 'sensors':map(lambda s: s.json_summary(), self.sensors, 'id': self.id)}
+
+	def json_summary(self):
+		return {'type': '<SensorType>', 'name': self.name, 'id': self.id}
 
 	def __repr__(self):
-		return '<SensorType> %s'%self.name
+		return json.dumps(self.json_summary())
+
 
 @create
 class Sensor(Base):
@@ -128,14 +137,24 @@ class Sensor(Base):
 			else:
 				self.readings.append(reading)
 
-	def describe(self):
-		return '<Sensor> uuid: %s, alias: %s, node: %s, sensor_type: %s, readings: %s'%(self.uuid, self.alias, self.node, self.sensortype, self.readings)
+	# def describe(self):
 
+	# 	return '<Sensor> uuid: %s, alias: %s, node: %s, sensor_type: %s, readings: %s'%(self.uuid, self.alias, self.node, self.sensortype, self.readings)
+
+	def json_detailed(self):
+		return {'type': '<Sensor>', 'uuid': self.uuid, 'sensor_type':self.sensortype, 'readings': map(lambda r: r.json_summary(), self.readings)}
+
+	def json_summary(self):
+		return {'type': '<Sensor>', 'uuid': self.uuid, 'sensor_type':self.sensortype}
+		# return {'type': '<Sensor>', 'uuid': self.uuid, 'node':self.node, 'sensor_type':self.sensortype, 'readings': map(lambda r: r.details(), self.readings)}
+
+ 
 	def __repr__(self):
 		if self.alias == None:
-			return '<Sensor> %s'%self.uuid
+			return json.dumps({'uuid': self.uuid})# '<Sensor> %s'%self.uuid
 		else:
-			return '<Sensor> %s'%self.alias
+			return json.dumps({'alias': self.alias})
+			# '<Sensor> %s'%self.alias
 		
 
 @create
@@ -161,12 +180,18 @@ class Reading(Base):
 		else:
 			raise ExpectedFieldException('sensor')
 
+	def json_detailed(self):
+		return {'type': '<Reading>', 'value': self.value, 'timestamp': self.timestamp.strftime(flapp.config['DATETIME_FORMAT'])}
+
+	def json_summary(self):
+		return {'type': '<Reading>', 'value': self.value, 'id': self.id}
 
 	def __repr__(self):
-		return '<Reading> value: %s, timestamp: %s'%(self.value, self.timestamp)
-
+		return json.dumps(self.json_summary())
+#
 
 		
+
 
 
 
