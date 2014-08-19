@@ -1,6 +1,7 @@
 from flask import Flask
 flapp = Flask(__name__)
 
+
 ### Use Twitter Bootstrap
 from flask_bootstrap import Bootstrap
 Bootstrap(flapp)
@@ -27,3 +28,5 @@ socketio = SocketIO(flapp)
 
 ### Import modules containing statements that must be executed when the webapp is started (such as adding routes for the REST api)
 from app import views, conf, api_core, database, models
+
+flapp.config.update(conf.module_config)

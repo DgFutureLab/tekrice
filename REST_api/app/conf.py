@@ -1,5 +1,12 @@
+### settings necessary to use the app in the console
+module_config = {
+	'DATETIME_FORMAT': '%Y-%m-%d-%H:%M:%S:%f'
+}
+
+
+### Settings shared between environments
 shared_config = {
-	'DATETIME_FORMAT': '%Y-%m-%d-%H:%M:%S:%f',
+	
 	'CSRF_ENABLED': True,
 	'SECRET_KEY': 'you-will-never-guess'
 }
