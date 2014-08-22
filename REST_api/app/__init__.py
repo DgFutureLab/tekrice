@@ -27,7 +27,7 @@ from flask.ext.socketio import SocketIO
 socketio = SocketIO(flapp)
 
 ### Import modules containing statements that must be executed when the webapp is started (such as adding routes for the REST api)
-from app import views, conf, api_core, database, models
+from app import views, conf, api_core, database, models, loggers
 from app.models import Node, Sensor, SensorType, Reading
 
 flapp.config.update(conf.module_config)
