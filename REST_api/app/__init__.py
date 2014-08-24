@@ -10,13 +10,7 @@ Bootstrap(flapp)
 from flask.ext import restful
 rest_api = restful.Api(flapp)
 
-# ### Create db
-# from flask.ext.sqlalchemy import SQLAlchemy
-# db = SQLAlchemy(flapp)
-# db.init_app(flapp)
-
 from database import db_session
-# init_db()
 
 @flapp.teardown_appcontext
 def shutdown_session(exception=None):
@@ -26,8 +20,11 @@ def shutdown_session(exception=None):
 from flask.ext.socketio import SocketIO
 socketio = SocketIO(flapp)
 
+### Before importing other modules, import and setup run configuration
+from app import conf
+flapp.config.update(conf.module_config)
+
 ### Import modules containing statements that must be executed when the webapp is started (such as adding routes for the REST api)
-from app import views, conf, api_core, database, models, loggers
+from app import api_core, database, models, loggers
 from app.models import Node, Sensor, SensorType, Reading
 
-flapp.config.update(conf.module_config)

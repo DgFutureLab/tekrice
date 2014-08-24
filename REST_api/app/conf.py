@@ -1,6 +1,7 @@
 ### settings necessary to use the app in the console
 module_config = {
-	'DATETIME_FORMAT': '%Y-%m-%d-%H:%M:%S:%f'
+	'DATETIME_FORMAT': '%Y-%m-%d-%H:%M:%S:%f',
+	'LOGLEVEL': 'DEBUG'
 }
 
 
@@ -18,7 +19,8 @@ def config_production(flapp):
 			PROPAGATE_EXCEPTIONS = False,
 			HOST = 'http://107.170.251.142',
 			PORT = '80',
-			SQLALCHEMY_DATABASE_URI = "postgresql://halfdan:halfdan@localhost/tekrice_prod"
+			SQLALCHEMY_DATABASE_URI = "postgresql://halfdan:halfdan@localhost/tekrice_prod",
+			LOGLEVEL = 'WARNING'
 		)
 
 def config_development(flapp):
@@ -29,5 +31,5 @@ def config_development(flapp):
 			HOST = 'http://120.0.0.1',
 			PORT = '8080',
 			SQLALCHEMY_DATABASE_URI = "postgresql://halfdan:halfdan@localhost/tekrice_dev",
-			
+			LOGLEVEL = 'DEBUG'
 		)
