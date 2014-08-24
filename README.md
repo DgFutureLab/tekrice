@@ -1,7 +1,7 @@
-hatakeSensorNetwork
+TekRice
 ===================
 
-Hatake (畑) is the Japanese name for "rice field". This repository contains the code for a system designed to monitor the water level in rice fields and upload the data to a server.
+Star topology sensor network designed using Freaklabs open hardware. Hatake (畑) is the Japanese name for "rice field". This repository contains the code for a system designed to monitor the water level in rice fields and upload the data to a server.
 
 This is an open source / open hardware collaboration by [Freaklabs](http://www.freaklabs.org/), Hacker Farm and [Future Lab](http://www.fljapan.com/).
 

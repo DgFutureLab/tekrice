@@ -1,8 +1,12 @@
 
 <h1>Add node</a>
 
-<form method="POST" action="/">
+<hr/>
+<form method="POST" action="/admin/addnode/submit">
     {{form.hidden_tag()}}
-    {{ form.name.label }} {{ form.name(size=20) }}
-    <input type="submit" value="Go">
+    {{ form.uuid.label }} {{ form.uuid(size=20) }}
+    <br/>
+    {{ form.alias.label }} {{ form.alias(size=20) }}
+    <br/>
+    <input type="submit" value="Add node">
 </form>
