@@ -1,7 +1,7 @@
-
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
+import inspect
 
 engine = create_engine('postgresql://halfdan:halfdan@localhost/tekrice_dev', convert_unicode = True)
 db_session = scoped_session(sessionmaker(autocommit=False, autoflush=False, bind=engine))
@@ -26,6 +26,19 @@ def init_db():
 def recreate():
 	nuke_db()
 	init_db()
+
+
+def get_defined_models():
+	import models
+	import sqlalchemy
+	members = dict(inspect.getmembers(models))
+	members.pop('Base')
+	models = list()
+	for name, member in members.items():
+		if isinstance(member, sqlalchemy.ext.declarative.api.DeclarativeMeta):
+			models.append(member)
+	return models
+
 
 def db_demo():
 	from models import Node, Sensor, SensorType, Reading
