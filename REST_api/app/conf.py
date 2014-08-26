@@ -1,4 +1,5 @@
-### settings necessary to use the app in the console
+### Settings necessary to use the app in the console
+### Note that enrivonment settings override module settings.
 module_config = {
 	'DATETIME_FORMAT': '%Y-%m-%d-%H:%M:%S:%f',
 	'LOGLEVEL': 'DEBUG'
@@ -31,5 +32,16 @@ def config_development(flapp):
 			HOST = 'http://120.0.0.1',
 			PORT = '8080',
 			SQLALCHEMY_DATABASE_URI = "postgresql://halfdan:halfdan@localhost/tekrice_dev",
+			LOGLEVEL = 'DEBUG'
+		)
+
+def config_test_env(flapp):
+	flapp.config.update(shared_config)
+	flapp.config.update(
+			DEBUG = False,
+			PROPAGATE_EXCEPTIONS = False,
+			HOST = 'http://120.0.0.1',
+			PORT = '8080',
+			SQLALCHEMY_DATABASE_URI = "postgresql://halfdan:halfdan@localhost/tekrice_test",
 			LOGLEVEL = 'DEBUG'
 		)
