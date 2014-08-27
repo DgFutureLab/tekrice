@@ -1,13 +1,7 @@
 import unittest
-from tests import *
-import app
-import inspect
-import sqlalchemy
-
-
+from tests.db import *
+from app import conf, flapp
 
 if __name__ == "__main__":
-	app.conf.config_test_env(app.flapp)
-
-
+	conf.config_test_env(flapp)
 	unittest.main()
