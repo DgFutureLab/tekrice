@@ -1,1 +1,0 @@
-uint8_t chibiGetUnusedAddress(uint8_t scan_length);
