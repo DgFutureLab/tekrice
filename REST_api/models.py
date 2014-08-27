@@ -30,7 +30,6 @@ def create(model):						### 'create' is the name of the decorator
 	return model						### The decorated model class is returned and replaces the origin model class
 
 
-
 @create
 class Node(Base):
 	
