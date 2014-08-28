@@ -27,4 +27,3 @@ flapp.config.update(conf.module_config)
 ### Import modules containing statements that must be executed when the webapp is started (such as adding routes for the REST api)
 from app import api_core, database, models, loggers
 from app.models import Node, Sensor, SensorType, Reading
-
