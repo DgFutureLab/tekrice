@@ -85,9 +85,27 @@ class SensorResource(restful.Resource):
 		print readings
 		return 'OK'
 
+class ReadingResource(restful.Resource):
+
+	def put(self, node_uuid, sensor_alias):
+		node = Node.query.filter_by(uuid = node_uuid).first()
+		# sensor = Sensor.filter_by(alias == sensor_alias).first()
+		if node:
+			sensor = Sensor.query.filter_by(node = node, alias = sensor_alias)
+		else:
+			node = Node.create(uuid = node_uuid)
+			sensor = Sensor.create(alias = sensor_alias, node = node)
+		print node, sensor
+		
+		# if not sensor:
+			# sensor = Sensor.create(alias = sensor_alias)
+		# node.sensors.append(sensor)
+
+
 		# return json.dumps({'value':self.value, 'unit': repr(self.unit), 'timestamp': self.timestamp})
 	
-rest_api.add_resource(SensorResource, '/sensor/<string:sensor_type>')
 
+rest_api.add_resource(SensorResource, '/sensor/<string:sensor_type>')
+rest_api.add_resource(ReadingResource, 'reading/<string:node_uuid>/<string:sensor_alias>')
 
 

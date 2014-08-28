@@ -19,4 +19,6 @@ if __name__ == "__main__":
 	elif args.env == 'production':
 		conf.config_production(flapp)
 		
+	flapp.logger.debug('Running webserver with config: %s'%flapp.config)
+
 	socketio.run(flapp, port = 8080)
