@@ -1,7 +1,6 @@
 ### Settings necessary to use the app in the console
 ### Note that enrivonment settings override module settings.
 module_config = {
-	'DATETIME_FORMAT': '%Y-%m-%d-%H:%M:%S:%f',
 	'LOGLEVEL': 'DEBUG'
 }
 

@@ -1,5 +1,5 @@
 from datetime import datetime
-from app import rest_api
+from app import rest_api, flapp
 import json
 from flask.ext import restful
 from flask import request
@@ -88,15 +88,39 @@ class SensorResource(restful.Resource):
 class ReadingResource(restful.Resource):
 
 	def put(self, node_uuid, sensor_alias):
+		satoyama.add_new_reading(node_uuid, sensor_alias, value, timestamp)
+
+
+
+		
+		flapp.logger.warning('Received node_uuid: %s, sensor_alias: %s'%(node_uuid, sensor_alias))
+
 		node = Node.query.filter_by(uuid = node_uuid).first()
-		# sensor = Sensor.filter_by(alias == sensor_alias).first()
+		flapp.logger.debug(node)
 		if node:
 			sensor = Sensor.query.filter_by(node = node, alias = sensor_alias)
 		else:
 			node = Node.create(uuid = node_uuid)
 			sensor = Sensor.create(alias = sensor_alias, node = node)
-		print node, sensor
+
+		reading_args = {'sensor':sensor}
+
+		# flapp.logger.debug(node)
+		# flapp.logger.debug(sensor)
+
+		try:
+			reading_args.update({'timestamp': request.form['timestamp']})
+		except KeyError:
+			pass
 		
+		try:
+			reading_args.update({'value': request.form['value']})
+		except KeyError:
+			pass
+
+		# reading = Reading(**reading_args)
+
+		return {'status': 'OK'}
 		# if not sensor:
 			# sensor = Sensor.create(alias = sensor_alias)
 		# node.sensors.append(sensor)
@@ -105,7 +129,10 @@ class ReadingResource(restful.Resource):
 		# return json.dumps({'value':self.value, 'unit': repr(self.unit), 'timestamp': self.timestamp})
 	
 
+
+
+
 rest_api.add_resource(SensorResource, '/sensor/<string:sensor_type>')
-rest_api.add_resource(ReadingResource, 'reading/<string:node_uuid>/<string:sensor_alias>')
+rest_api.add_resource(ReadingResource, '/reading/<string:node_uuid>/<string:sensor_alias>')
 
 
