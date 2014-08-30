@@ -1,5 +1,5 @@
 from flask import Flask
-flapp = Flask(__name__)
+flapp = Flask('sensor_api')
 
 
 ### Use Twitter Bootstrap
@@ -24,6 +24,18 @@ socketio = SocketIO(flapp)
 from app import conf
 flapp.config.update(conf.module_config)
 
+
+
+import sys
+sys.path.append('/Users/halfdan-rump/projects/')
+try:
+	print 'asdasd'
+	from satoyama import database, models
+	from satoyama.models import Node, Sensor, SensorType, Reading
+except ImportError:
+	print 'Please supply path to satoyama module (this is temporary, until satoyama is on PyPI)'
+
+
 ### Import modules containing statements that must be executed when the webapp is started (such as adding routes for the REST api)
-from app import api_core, database, models, loggers
-from app.models import Node, Sensor, SensorType, Reading
+import resources
+# from app import api_core, loggers

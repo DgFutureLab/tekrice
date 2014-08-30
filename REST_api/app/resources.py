@@ -1,9 +1,8 @@
 from datetime import datetime
-from app import rest_api, flapp
+from app import rest_api, flapp, Node, Sensor, Reading
 import json
 from flask.ext import restful
 from flask import request
-from app.models import Node, Sensor, Reading
 from sqlalchemy.exc import IntegrityError
 
 API_UNITS = {
@@ -86,47 +85,47 @@ class SensorResource(restful.Resource):
 		return 'OK'
 
 class ReadingResource(restful.Resource):
-
-	def put(self, node_uuid, sensor_alias):
-		satoyama.add_new_reading(node_uuid, sensor_alias, value, timestamp)
+	pass
+	# def put(self, node_uuid, sensor_alias):
+	# 	satoyama.add_new_reading(node_uuid, sensor_alias, value, timestamp)
 
 
 
 		
-		flapp.logger.warning('Received node_uuid: %s, sensor_alias: %s'%(node_uuid, sensor_alias))
+	# 	flapp.logger.warning('Received node_uuid: %s, sensor_alias: %s'%(node_uuid, sensor_alias))
 
-		node = Node.query.filter_by(uuid = node_uuid).first()
-		flapp.logger.debug(node)
-		if node:
-			sensor = Sensor.query.filter_by(node = node, alias = sensor_alias)
-		else:
-			node = Node.create(uuid = node_uuid)
-			sensor = Sensor.create(alias = sensor_alias, node = node)
+	# 	node = Node.query.filter_by(uuid = node_uuid).first()
+	# 	flapp.logger.debug(node)
+	# 	if node:
+	# 		sensor = Sensor.query.filter_by(node = node, alias = sensor_alias)
+	# 	else:
+	# 		node = Node.create(uuid = node_uuid)
+	# 		sensor = Sensor.create(alias = sensor_alias, node = node)
 
-		reading_args = {'sensor':sensor}
+	# 	reading_args = {'sensor':sensor}
 
-		# flapp.logger.debug(node)
-		# flapp.logger.debug(sensor)
+	# 	# flapp.logger.debug(node)
+	# 	# flapp.logger.debug(sensor)
 
-		try:
-			reading_args.update({'timestamp': request.form['timestamp']})
-		except KeyError:
-			pass
+	# 	try:
+	# 		reading_args.update({'timestamp': request.form['timestamp']})
+	# 	except KeyError:
+	# 		pass
 		
-		try:
-			reading_args.update({'value': request.form['value']})
-		except KeyError:
-			pass
+	# 	try:
+	# 		reading_args.update({'value': request.form['value']})
+	# 	except KeyError:
+	# 		pass
 
-		# reading = Reading(**reading_args)
+	# 	# reading = Reading(**reading_args)
 
-		return {'status': 'OK'}
-		# if not sensor:
-			# sensor = Sensor.create(alias = sensor_alias)
-		# node.sensors.append(sensor)
+	# 	return {'status': 'OK'}
+	# 	# if not sensor:
+	# 		# sensor = Sensor.create(alias = sensor_alias)
+	# 	# node.sensors.append(sensor)
 
 
-		# return json.dumps({'value':self.value, 'unit': repr(self.unit), 'timestamp': self.timestamp})
+	# 	# return json.dumps({'value':self.value, 'unit': repr(self.unit), 'timestamp': self.timestamp})
 	
 
 
