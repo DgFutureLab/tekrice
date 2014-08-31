@@ -10,6 +10,7 @@ API_UNITS = {
 	's':'SI seconds'
 	}
 
+
 class UnknownUnitException(Exception):
 	def __init__(self, supplied_unit):
 		super(UnknownUnitException, self).__init__('Bad unit specified: %s'%supplied_unit)
@@ -84,54 +85,70 @@ class SensorResource(restful.Resource):
 		print readings
 		return 'OK'
 
-class ReadingResource(restful.Resource):
-	pass
-	# def put(self, node_uuid, sensor_alias):
-	# 	satoyama.add_new_reading(node_uuid, sensor_alias, value, timestamp)
-
-
-
-		
-	# 	flapp.logger.warning('Received node_uuid: %s, sensor_alias: %s'%(node_uuid, sensor_alias))
-
-	# 	node = Node.query.filter_by(uuid = node_uuid).first()
-	# 	flapp.logger.debug(node)
-	# 	if node:
-	# 		sensor = Sensor.query.filter_by(node = node, alias = sensor_alias)
-	# 	else:
-	# 		node = Node.create(uuid = node_uuid)
-	# 		sensor = Sensor.create(alias = sensor_alias, node = node)
-
-	# 	reading_args = {'sensor':sensor}
-
-	# 	# flapp.logger.debug(node)
-	# 	# flapp.logger.debug(sensor)
-
-	# 	try:
-	# 		reading_args.update({'timestamp': request.form['timestamp']})
-	# 	except KeyError:
-	# 		pass
-		
-	# 	try:
-	# 		reading_args.update({'value': request.form['value']})
-	# 	except KeyError:
-	# 		pass
-
-	# 	# reading = Reading(**reading_args)
-
-	# 	return {'status': 'OK'}
-	# 	# if not sensor:
-	# 		# sensor = Sensor.create(alias = sensor_alias)
-	# 	# node.sensors.append(sensor)
-
-
-	# 	# return json.dumps({'value':self.value, 'unit': repr(self.unit), 'timestamp': self.timestamp})
+class ApiResponse(object):
 	
 
+	def __init__(self, action = "", status = ""):
+		self.action = action
+		self.status = status
+		self.warnings = list()
+		self.errors = list()
+
+	def add_warning(self, warning):
+		self.warnings.append(warning)
+
+	def add_error(self, error):
+		self.errors.append(error)
+
+	def json(self):
+		return {'warnings': self.warnings, 'errors': self.errors}
+
+
+def get_form_data(response, field = None):
+	assert isinstance(response, ApiResponse), 'response must an instance of type ApiResponse'
+	try:
+		field = request.form[field]
+	except KeyError:
+		response.add_warning('Missing field: %s'%field)
+		field = None
+	finally:
+		return field
+
+
+class ReadingResource(restful.Resource):
+
+	
+	def put(self, node_uuid, sensor_identifier):
+		""" 
+		:param node_uuid: uuid of the node
+		:param sensor_identifier: Can be either sensor uuid or sensor alias. 
+		"""
+		response = ApiResponse()
+
+		timestamp = get_form_data(response, 'timestamp')
+		print 'ASDASDAd', timestamp
+		value = get_form_data(response, 'value')
+		
+		node = Node.query.filter_by(uuid = node_uuid).first()
+		sensor = Sensor.query.filter_by(node = node, uuid = sensor_identifier).first() or Sensor.query.filter_by(node = node, alias = sensor_identifier).first()
+		print node, sensor
+
+		if not node: response.add_error('Insert reading failed: No such node.')
+		if not sensor: response.add_error('Insert reading failed: No such sensor')
+		else:
+			try:
+				Reading.create(sensor = sensor, value = value, timestamp = timestamp)
+			except Exception, e:
+				response.add_error(e.message)
+
+		# satoyama.add_new_reading(node_uuid, sensor_alias, value, timestamp)
+		print response
+		print response.json()
+		return {'api_response': response.json()}
 
 
 
 rest_api.add_resource(SensorResource, '/sensor/<string:sensor_type>')
-rest_api.add_resource(ReadingResource, '/reading/<string:node_uuid>/<string:sensor_alias>')
+rest_api.add_resource(ReadingResource, '/reading/<string:node_uuid>/<string:sensor_identifier>')
 
 
