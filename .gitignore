@@ -54,3 +54,4 @@ docs/_build/
 
 log.txt
 api.log
+.DS_Store

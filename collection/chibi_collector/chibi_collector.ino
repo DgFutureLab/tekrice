@@ -1,17 +1,13 @@
-#include <config.h>
-
-
-
 /*
-Freakduino Chibi-9000 using a DHT11 temperature sensor 
-and broadcasting the latest temperature reading. 
-It sends only the temperature.
+Freakduino Chibi-9000
+
+Collects data from different sensors and sends it to 
+the aggregator as defined in "config.h"
 */
 
 #include <chibi.h>
 #include "DHT.h"
-
-
+#include <config.h>
 
 #define DHTTYPE DHT11   // Type of DHT sensor, in our case we are using DHT11
 #define DHT11_PIN A0    // Pin where the DHT11 is connected
@@ -82,9 +78,11 @@ void loop()
   long duration, inches, cm;
   
   float distance = sonar_measure_distance();
-  
-  Reading dist = {"distance", distance, millis()};
-  addToTXbuf(TXbuf, &dist);
+  if (distance > 0) {
+    Reading dist = {"distance", distance, millis()};
+    addToTXbuf(TXbuf, &dist);
+  }
+
   Reading temp = {"temperature", DHT.temperature, millis()};
   addToTXbuf(TXbuf, &temp);
   Reading hum = {"humidity", DHT.humidity, millis()};
@@ -92,34 +90,6 @@ void loop()
   chibiTx(42, TXbuf, TX_LENGTH);
   Serial.println((char*) TXbuf);
     
-  
-//  byte temperature_buffer[10];
-//  byte humidity_buffer[10];
-//  String temperature = String(dtostrf(DHT.temperature,2,2, (char *)temperature_buffer));
-//  String humidity = String(dtostrf(DHT.humidity,2,2, (char *)humidity_buffer));
-//
-//  String msg;
-//  msg = temperature + ";" + humidity;
-//  
-//  msg.getBytes(TXbuf, length);
-//  chibiTx(42, TXbuf, length);
-//  Serial.println(msg);
-
-
-
-//  // Transfer the temperature to a buffer
-//  byte temperature_buffer[10]; 
-
-  //AVR libc function to convert from double to char* , sprintf doesn't work
-//  dtostrf(DHT.temperature,2,2, (char *)temperature_buffer); 
-  
-//  byte humidity_buffer[10];
-  
-  
-//  dtostrf(DHT.temperature,2,2, (char *)temperature_buffer); 
-  // Send the data to other Chibis
-//  chibiTx(42, temperature_buffer, sizeof(temperature_buffer));
-  
   //Wait one second until we read and send more temperature data
   delay(10000);
 }
