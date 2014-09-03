@@ -1,3 +1,6 @@
+#include <config.h>
+#include <utilsawesome.h>
+
 /*
 Freakduino Chibi-9000
 
@@ -7,36 +10,17 @@ the aggregator as defined in "config.h"
 
 #include <chibi.h>
 #include "DHT.h"
-#include <config.h>
 
 #define DHTTYPE DHT11   // Type of DHT sensor, in our case we are using DHT11
 #define DHT11_PIN A0    // Pin where the DHT11 is connected
 
 dht DHT;
 
-struct Reading{
-	String name;
-	double value;
-	long timestamp;
-};
-
-void addToTXbuf(byte *TXbuf, struct Reading *reading){
-  
-  byte buf[10];
-  String value = String(dtostrf(reading->value, 2, 2, (char *)buf));
-  
-  String msg = (char *)TXbuf;
-  msg += reading->name + ':' + value + ':' + reading->timestamp + ';';
-  msg.getBytes(TXbuf, TX_LENGTH);
-  
-}
-
 /**************************************************************************/
 // Initialize
 /**************************************************************************/
 void setup()
-{  
-
+{
   // Initialize the chibi command line and set the speed to 57600 bps
   chibiCmdInit(57600);
   
@@ -69,28 +53,33 @@ void loop()
 		break;
   }
 
-  // Print the DHT Data
-//  Serial.print(DHT.humidity, 1);
-//  Serial.print(",\t");
-//  Serial.println(DHT.temperature, 1);
-  byte TXbuf[TX_LENGTH];
-  memset(TXbuf, 0, TX_LENGTH);
+  byte tx_buf[TX_LENGTH];
+  memset(tx_buf, 0, TX_LENGTH);
   long duration, inches, cm;
   
+  // Read sonar distance
   float distance = sonar_measure_distance();
   if (distance > 0) {
     Reading dist = {"distance", distance, millis()};
-    addToTXbuf(TXbuf, &dist);
+    add_to_tx_buf((char*)tx_buf, &dist);
   }
 
+  // Read temperature
   Reading temp = {"temperature", DHT.temperature, millis()};
-  addToTXbuf(TXbuf, &temp);
+  add_to_tx_buf((char*)tx_buf, &temp);
+  
+  // Read humidity
   Reading hum = {"humidity", DHT.humidity, millis()};
-  addToTXbuf(TXbuf, &hum);
-  chibiTx(42, TXbuf, TX_LENGTH);
-  Serial.println((char*) TXbuf);
-    
-  //Wait one second until we read and send more temperature data
+  add_to_tx_buf((char*)tx_buf, &hum);
+  
+  //Send data stored on "tx_buf" to collector
+  chibiTx(42, tx_buf, TX_LENGTH);
+
+  // Debug print
+  Serial.println((char*) tx_buf);
+
+  free(tx_buf);
+  //Wait
   delay(10000);
 }
 

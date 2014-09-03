@@ -1,8 +1,15 @@
-// struct Reading{
-// 	String name;
-// 	double value;
-// 	String timestamp;
-// };
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-// uint8_t chibiGetUnusedAddress(uint8_t scan_length);
-// void addToTXbuf(uint8_t *TXbuf, struct Reading *reading);
+typedef struct Reading{
+	char *name;
+	double value;
+	long timestamp;
+};
+
+void add_to_tx_buf(char *tx_buf, struct Reading *reading);
+
+#ifdef __cplusplus
+}
+#endif
