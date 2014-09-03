@@ -15,20 +15,43 @@ the aggregator as defined in "config.h"
 dht DHT;
 
 struct Reading{
-	String name;
+	char *name;
 	double value;
 	long timestamp;
 };
 
-void addToTXbuf(byte *TXbuf, struct Reading *reading){
-  
+
+/*
+ *    Concatenates the information from one Reading to the tx_buf
+ *
+ *    The format of one reading string is:
+ *        reading->name:reading->value:reading->timestamp;
+ *
+ *    With real information coming from sensors should look like:
+ *        "distance:205.00:5623;"
+ *
+ *    When many Readings have been attached having called this function several times
+ *      this is how the tx_buf looks like:
+ *        "distance:205.00:18323;temperature:24.00:18323;humidity:45.10 
+ *
+ */
+ 
+void add_to_tx_buf(byte *TXbuf, struct Reading *reading) {  
   byte buf[10];
-  String value = String(dtostrf(reading->value, 2, 2, (char *)buf));
-  
-  String msg = (char *)TXbuf;
-  msg += reading->name + ':' + value + ':' + reading->timestamp + ';';
-  msg.getBytes(TXbuf, TX_LENGTH);
-  
+  char timestamp_buf[20];
+  char str[80];
+
+  char *current_value = dtostrf(reading->value, 2, 2, (char *)buf);
+
+  strcpy(str, "");
+  strcat(str, reading->name);
+  strcat(str, ":");
+  strcat(str, current_value);
+  strcat(str, ":");
+  sprintf(timestamp_buf, "%d", reading->timestamp );
+  strcat(str, timestamp_buf);
+  strcat(str, ";");
+  strcat((char *)TXbuf,(char *) str);
 }
 
 /**************************************************************************/
@@ -80,13 +103,13 @@ void loop()
   float distance = sonar_measure_distance();
   if (distance > 0) {
     Reading dist = {"distance", distance, millis()};
-    addToTXbuf(TXbuf, &dist);
+    add_to_tx_buf(TXbuf, &dist);
   }
 
   Reading temp = {"temperature", DHT.temperature, millis()};
-  addToTXbuf(TXbuf, &temp);
+  add_to_tx_buf(TXbuf, &temp);
   Reading hum = {"humidity", DHT.humidity, millis()};
-  addToTXbuf(TXbuf, &hum);
+  add_to_tx_buf(TXbuf, &hum);
   chibiTx(42, TXbuf, TX_LENGTH);
   Serial.println((char*) TXbuf);
     

@@ -6,8 +6,6 @@
 
 #define VERBOSE 0
 
-
-
-
-
+//
+// Change this to ENUM?
 // const char * const sensors[] = { "temperatureinside", "temperatureoutside", "humidityinside", "humidityoutside", "batteryvoltage", "sonar" };

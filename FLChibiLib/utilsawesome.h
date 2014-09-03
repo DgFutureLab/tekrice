@@ -1,3 +1,4 @@
+
 // struct Reading{
 // 	String name;
 // 	double value;
@@ -5,4 +6,5 @@
 // };
 
 // uint8_t chibiGetUnusedAddress(uint8_t scan_length);
+
 // void addToTXbuf(uint8_t *TXbuf, struct Reading *reading);
