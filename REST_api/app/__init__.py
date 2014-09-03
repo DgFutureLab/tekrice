@@ -26,15 +26,8 @@ flapp.config.update(conf.module_config)
 
 
 
-import sys
-sys.path.append('/Users/halfdan-rump/projects/')
-try:
-	print 'asdasd'
-	from satoyama import database, models
-	from satoyama.models import Node, Sensor, SensorType, Reading
-except ImportError:
-	print 'Please supply path to satoyama module (this is temporary, until satoyama is on PyPI)'
 
+from satoyama import database, models
 
 ### Import modules containing statements that must be executed when the webapp is started (such as adding routes for the REST api)
 import resources

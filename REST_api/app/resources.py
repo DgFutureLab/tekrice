@@ -1,5 +1,7 @@
 from datetime import datetime
-from app import rest_api, flapp, Node, Sensor, Reading
+from app import rest_api, flapp
+from satoyama.models import Node, Sensor, SensorType, Reading
+
 import json
 from flask.ext import restful
 from flask import request
