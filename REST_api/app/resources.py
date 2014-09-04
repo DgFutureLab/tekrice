@@ -5,7 +5,7 @@ from satoyama.models import Node, Sensor, SensorType, Reading
 import json
 from flask.ext import restful
 from flask import request
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy.exc import IntegrityError, DataError
 
 API_UNITS = {
 	'm':'SI meters', 
@@ -90,11 +90,10 @@ class SensorResource(restful.Resource):
 class ApiResponse(object):
 	
 
-	def __init__(self, action = "", status = ""):
-		self.action = action
-		self.status = status
+	def __init__(self, request):
 		self.warnings = list()
 		self.errors = list()
+		self.request_data = request.form
 
 	def add_warning(self, warning):
 		self.warnings.append(warning)
@@ -103,7 +102,7 @@ class ApiResponse(object):
 		self.errors.append(error)
 
 	def json(self):
-		return {'warnings': self.warnings, 'errors': self.errors}
+		return {'warnings': self.warnings, 'errors': self.errors, 'request data': self.request_data}
 
 
 def get_form_data(response, field = None):
@@ -120,37 +119,44 @@ def get_form_data(response, field = None):
 class ReadingResource(restful.Resource):
 
 	
-	def put(self, node_uuid, sensor_identifier):
+	def put(self, node_id, sensor_alias):
 		""" 
 		:param node_uuid: uuid of the node
 		:param sensor_identifier: Can be either sensor uuid or sensor alias. 
 		"""
-		response = ApiResponse()
+		response = ApiResponse(request)
 
 		timestamp = get_form_data(response, 'timestamp')
-		print 'ASDASDAd', timestamp
 		value = get_form_data(response, 'value')
-		
-		node = Node.query.filter_by(uuid = node_uuid).first()
-		sensor = Sensor.query.filter_by(node = node, uuid = sensor_identifier).first() or Sensor.query.filter_by(node = node, alias = sensor_identifier).first()
-		print node, sensor
+		node, sensor = None, None
 
-		if not node: response.add_error('Insert reading failed: No such node.')
-		if not sensor: response.add_error('Insert reading failed: No such sensor')
+		try:
+			node = Node.query.filter_by(id = node_id).first()
+		except DataError:
+			response.add_error('node_id must be an integer')
+		if not node: response.add_error('Insert reading failed: No node with id %s'%node_id)
+
+		try:
+			sensor = Sensor.query.filter_by(alias = sensor_alias, node = node).first()
+		except DataError:
+			response.add_error('sensor_id must an integer')
+
+		 
+		if not sensor: 
+			response.add_error('Insert reading failed: Node has no sensor with alias %s'%sensor_alias)
 		else:
 			try:
 				Reading.create(sensor = sensor, value = value, timestamp = timestamp)
 			except Exception, e:
 				response.add_error(e.message)
 
-		# satoyama.add_new_reading(node_uuid, sensor_alias, value, timestamp)
-		print response
-		print response.json()
-		return {'api_response': response.json()}
+
+		return response.json()
 
 
 
 rest_api.add_resource(SensorResource, '/sensor/<string:sensor_type>')
-rest_api.add_resource(ReadingResource, '/reading/<string:node_uuid>/<string:sensor_identifier>')
+rest_api.add_resource(ReadingResource, '/reading/node/<string:node_id>/<string:sensor_alias>')
+# rest_api.add_resource(ReadingResource, '/reading/sensor/<string:sensor_id>')
 
 
