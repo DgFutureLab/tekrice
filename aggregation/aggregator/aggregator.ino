@@ -21,7 +21,7 @@ void loop()
     int rssi = chibiGetRSSI();
     int src_addr = chibiGetSrcAddr();
     
-    byte buf[100];  // this is where we store the received data
+    byte buf[TX_LENGTH];  // this is where we store the received data
     int len = chibiGetData(buf);
     printBufferToSerial(src_addr, buf);
     
@@ -31,14 +31,15 @@ void loop()
 
 void printBufferAsAscii(byte *buf){
   for(int i=0; i<=3; i++){
-    Serial.print(buf[i]);
+    Serial.println(buf[i]);
     Serial.print(" ");
   }
   Serial.println("");
 }
 
 void printBufferToSerial(int src_addr, byte *buf){
+  Serial.print("^");
   Serial.print(src_addr);
-  Serial.print(",");
+  Serial.print("@");
   Serial.println((char*)buf);
 }

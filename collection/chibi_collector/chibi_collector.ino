@@ -73,14 +73,14 @@ void loop()
   add_to_tx_buf((char*)tx_buf, &hum);
   
   //Send data stored on "tx_buf" to collector
-  chibiTx(42, tx_buf, TX_LENGTH);
+  chibiTx(AGGREGATOR_SHORT_ADDRESS, tx_buf, TX_LENGTH);
 
   // Debug print
   Serial.println((char*) tx_buf);
 
   free(tx_buf);
   //Wait
-  delay(10000);
+  delay(1000);
 }
 
 float sonar_measure_distance(){
