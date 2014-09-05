@@ -11,7 +11,8 @@ from app.models import Node
 
 @flapp.route('/')
 def index():
-	return render_template('index.html')
+	return 'OK'
+	# render_template('index.html')
 
 @flapp.route('/update_temperature', methods = ['GET', 'POST'])
 def emit_temperature():
