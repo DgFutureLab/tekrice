@@ -7,12 +7,12 @@ from flask_wtf import Form
 from wtforms import StringField
 from wtforms.validators import DataRequired
 from forms import NodeForm
-from app.models import Node
 
-@flapp.route('/')
+
+@flapp.route('/', methods = ['GET'])
 def index():
-	return 'OK'
-	# render_template('index.html')
+	# return 'OK'
+	return render_template('index.html')
 
 @flapp.route('/update_temperature', methods = ['GET', 'POST'])
 def emit_temperature():
