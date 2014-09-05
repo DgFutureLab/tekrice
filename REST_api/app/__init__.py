@@ -13,8 +13,8 @@ rest_api = restful.Api(flapp)
 
 
 ### Adds websocket to app
-from flask.ext.socketio import SocketIO
-socketio = SocketIO(flapp)
+#from flask.ext.socketio import SocketIO
+#socketio = SocketIO(flapp)
 
 ### Before importing other modules, import and setup run configuration
 from app import conf

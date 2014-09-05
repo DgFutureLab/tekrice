@@ -1,5 +1,5 @@
 import argparse
-from app import flapp, socketio, conf
+from app import flapp, conf
 import os
 
 if __name__ == "__main__":
@@ -20,5 +20,5 @@ if __name__ == "__main__":
 		conf.config_production(flapp)
 		
 	flapp.logger.debug('Running webserver with config: %s'%flapp.config)
-
-	socketio.run(flapp, port = 8080)
+	flapp.run(port = 8080)
+	#socketio.run(flapp, port = 8080)
