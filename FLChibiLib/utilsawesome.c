@@ -19,7 +19,6 @@ void add_to_tx_buf(char *tx_buf, struct Reading *reading)
   char buf[10];
   char timestamp_buf[20];
   char str[80];
-
   char *current_value = dtostrf(reading->value, 2, 2, (char *)buf);
 
   strcpy(str, "");
