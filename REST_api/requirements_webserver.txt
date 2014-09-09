@@ -9,5 +9,7 @@ gevent-websocket==0.9.2
 greenlet==0.4.2
 flask-bootstrap
 flask-restful
+flask-wtf
 sqlalchemy
 psycopg2
+satoyama
