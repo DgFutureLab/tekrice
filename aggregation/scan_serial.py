@@ -9,7 +9,6 @@ from threading import Thread, Event
 from logging import Logger, Formatter, StreamHandler
 from logging.handlers import RotatingFileHandler
 from argparse import ArgumentParser
-from satoyama.config import DATETIME_FORMATS
 from datetime import datetime
 logger = Logger(__name__)
 
@@ -35,7 +34,8 @@ queue = Queue(100)
 
 def open_serial_device():
 	try:
-		device = '/dev/' + filter(lambda x: re.match('tty.usb*', x), os.listdir('/dev'))[0]
+		#device = '/dev/' + filter(lambda x: re.match('tty.usb*', x), os.listdir('/dev'))[0]
+		device = '/dev/' + filter(lambda x: re.match('ttyUSB*', x), os.listdir('/dev'))[0]
 		serial_device = serial.Serial(device, args.baud, timeout = 5)
 		logger.debug('Opening device %s'%device)
 		return serial_device
@@ -56,7 +56,7 @@ def parse_reading(reading):
 		parsed = map(lambda y: dict(zip(['alias', 'value', 'timestamp'], y)), map(lambda x: x.split(':'), payload[:-3].split(';')))
 		for p in parsed: 
 			p.update({'node_id':addr})
-			p.update({'timestamp':datetime.now().strftime(DATETIME_FORMATS[0])})
+			p.update({'timestamp':datetime.now().strftime('%Y-%m-%d-%H:%M:%S:%f')})
 			
 
 		return parsed 
@@ -72,10 +72,9 @@ def read_serial(name, is_running):
 	previous_reading = ''
 
 	while is_running.isSet():
-		reading = serial_connection.readline()
-
 		try:
-			pass
+			reading = serial_connection.readline()
+			logger.debug('From serial: %s'%reading)
 		except ValueError:
 			message = 'Problem reading serial port. Please try to run the program again!'	
 			print message
