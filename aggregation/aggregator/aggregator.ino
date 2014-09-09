@@ -23,9 +23,13 @@ void loop()
     
     byte buf[TX_LENGTH];  // this is where we store the received data
     int len = chibiGetData(buf);
-    printBufferToSerial(src_addr, buf);
+
     
-    if (len == 0) return;
+    if (len == 0) {
+      return;
+    } else{
+      printBufferToSerial(src_addr, buf);
+    }
   }
 }
 
