@@ -11,3 +11,4 @@ flask-bootstrap
 flask-restful
 sqlalchemy
 psycopg2
+satoyama
