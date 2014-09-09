@@ -94,6 +94,7 @@ class ApiResponse(object):
 		self.warnings = list()
 		self.errors = list()
 		self.request_data = request.form
+		self.objects = list()
 
 	def add_warning(self, warning):
 		self.warnings.append(warning)
@@ -101,8 +102,11 @@ class ApiResponse(object):
 	def add_error(self, error):
 		self.errors.append(error)
 
+	def add_object(self, obj):
+		self.objects.append(obj)
+
 	def json(self):
-		return {'warnings': self.warnings, 'errors': self.errors, 'request data': self.request_data}
+		return {'warnings': self.warnings, 'errors': self.errors, 'request': self.request_data, 'data': self.objects}
 
 
 def get_form_data(response, field = None):
@@ -118,6 +122,35 @@ def get_form_data(response, field = None):
 
 class ReadingResource(restful.Resource):
 
+	def get(self, node_id, sensor_alias):
+		response = ApiResponse(request)
+
+		node, sensor = None, None
+
+		try:
+			node = Node.query.filter_by(id = node_id).first()
+		except DataError:
+			response.add_error('node_id must be an integer')
+		if not node: response.add_error('Insert reading failed: No node with id %s'%node_id)
+
+		try:
+			sensor = Sensor.query.filter_by(alias = sensor_alias, node = node).first()
+		except DataError:
+			response.add_error('sensor_id must an integer')
+
+		 
+		if not sensor: 
+			response.add_error('Get reading failed: Node has no sensor with alias %s'%sensor_alias)
+		else:
+			try:
+				reading = Reading.query.filter_by(sensor = sensor).all()[-1]
+				print reading.json_detailed()
+				response.add_object({'value': reading.value})
+			except Exception, e:
+				response.add_error(e.message)
+		return response.json()
+
+		
 	
 	def put(self, node_id, sensor_alias):
 		""" 
@@ -156,7 +189,7 @@ class ReadingResource(restful.Resource):
 
 
 rest_api.add_resource(SensorResource, '/sensor/<string:sensor_type>')
-rest_api.add_resource(ReadingResource, '/reading/node/<string:node_id>/<string:sensor_alias>')
+rest_api.add_resource(ReadingResource, '/reading/<string:node_id>/<string:sensor_alias>')
 # rest_api.add_resource(ReadingResource, '/reading/sensor/<string:sensor_id>')
 
 
