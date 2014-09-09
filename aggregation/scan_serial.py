@@ -34,8 +34,7 @@ queue = Queue(100)
 
 def open_serial_device():
 	try:
-		#device = '/dev/' + filter(lambda x: re.match('tty.usb*', x), os.listdir('/dev'))[0]
-		device = '/dev/' + filter(lambda x: re.match('ttyUSB*', x), os.listdir('/dev'))[0]
+		device = '/dev/' + filter(lambda x: re.match('tty.usb*', x) or re.match('ttyUSB*', x), os.listdir('/dev'))[0]
 		serial_device = serial.Serial(device, args.baud, timeout = 5)
 		logger.debug('Opening device %s'%device)
 		return serial_device
@@ -106,8 +105,8 @@ def upload_daemon(name, is_running):
 		try:
 			data_list = get_data_in_queue()
 			for reading in data_list:
-				url = 'http://localhost:8080/reading/node/%s/%s'%(reading['node_id'], reading['alias'])
-				
+				url = get_url(reading['node_id'], reading['alias'])
+				print url
 				data = {'value' : reading['value'], 'timestamp' : reading['timestamp']}
 				response = requests.put(url, data = data)
 				logger.info(response.text)
@@ -124,7 +123,7 @@ def get_data_in_queue():
 
 
 def get_url(node_id, sensor_alias):
-	return 'http://%s:%s/%s/%s/'%(args.host, args.port, node, sensor)
+	return 'http://%s:%s/reading/%s/%s'%(args.host, args.port, node_id, sensor_alias)
 
 if __name__ == "__main__":
 	logger.info('*******************************************************\n')
