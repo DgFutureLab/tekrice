@@ -30,7 +30,8 @@ parser.add_argument('-d', '--debug_level', help = 'Port on the server', default 
 
 args = parser.parse_args()
 logger.setLevel(args.debug_level)
-queue = Queue(100)
+
+queue = Queue(args.queue_size)
 
 def open_serial_device():
 	try:
@@ -56,11 +57,10 @@ def parse_reading(reading):
 		for p in parsed: 
 			p.update({'node_id':addr})
 			p.update({'timestamp':datetime.now().strftime('%Y-%m-%d-%H:%M:%S:%f')})
-			
-
 		return parsed 
 	except Exception, e:
 		logger.exception(e)
+		logger.exception('Exception when parsing reading: %s'%reading)
 		return []
 	
 
@@ -108,9 +108,14 @@ def upload_daemon(name, is_running):
 				url = get_url(reading['node_id'], reading['alias'])
 				print url
 				data = {'value' : reading['value'], 'timestamp' : reading['timestamp']}
-				response = requests.put(url, data = data)
-				logger.info(response.text)
-		except Empty:
+				try:
+					response = requests.put(url, data = data)
+					logger.info(response.text)
+				except requests.ConnectionError, e:
+					logger.warning(e)
+					queue.put(reading)
+				
+		except Empty: 
 			pass
 		time.sleep(args.upload_interval)
 
