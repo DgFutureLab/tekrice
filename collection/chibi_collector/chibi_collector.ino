@@ -11,6 +11,16 @@ the aggregator as defined in "config.h"
 #include <chibi.h>
 #include "DHT.h"
 
+/*
+Saboten includes
+#include <avr/sleep.h>
+#include <avr/power.h>
+#include <avr/wdt.h>
+#include <Wire.h>
+#include <SPI.h>
+#include <SdFat.h>
+#include <pcf2127.h>*/
+
 #define DHTTYPE DHT11   // Type of DHT sensor, in our case we are using DHT11
 #define DHT11_PIN A0    // Pin where the DHT11 is connected
 
