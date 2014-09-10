@@ -4,7 +4,7 @@ import re
 import requests
 import time
 import sys
-from Queue import Queue, Empty, Full
+from Queue import Queue, Full
 from threading import Thread, Event
 from logging import Logger, Formatter, StreamHandler
 from logging.handlers import RotatingFileHandler
@@ -21,6 +21,7 @@ logger.addHandler(filehandler)
 logger.addHandler(streamhandler)
 
 
+
 def open_serial_device():
 	try:
 		device = '/dev/' + filter(lambda x: re.match('tty.usb*', x) or re.match('ttyUSB*', x), os.listdir('/dev'))[0]
@@ -28,14 +29,9 @@ def open_serial_device():
 		logger.debug('Opening device %s'%device)
 		return serial_device
 	except IndexError:
-		logger.fatal("Couldn't find any arduino devices. Are you sure it's plugged in? :)")
+		logger.fatal("Couldn't find any Arduino devices. Are you sure it's plugged in? :)")
 		os._exit(1)
 		
-
-
-def with_timestamp(message):
-	return str(time.time()) + ',' + message
-
 
 def parse_reading(reading):
 	try:
@@ -46,9 +42,8 @@ def parse_reading(reading):
 			p.update({'node_id':addr})
 			p.update({'timestamp':datetime.now().strftime('%Y-%m-%d-%H:%M:%S:%f')})
 		return parsed 
-	except Exception, e:
-		logger.exception(e)
-		logger.exception('Exception when parsing reading: %s'%reading)
+	except ValueError:
+		logger.exception('Recieved garbage from serial port: %s'%reading)
 		return []
 	
 
@@ -64,7 +59,6 @@ def read_serial(name, is_running):
 			logger.debug('From serial: %s'%reading)
 		except ValueError:
 			message = 'Problem reading serial port. Please try to run the program again!'	
-			print message
 			logger.fatal(message)
 			os._exit(1)
 
@@ -86,9 +80,7 @@ def read_serial(name, is_running):
 
 
 def upload_daemon(name, is_running):
-
 	logger.debug('Running %s daemon'%name)
-	node_id = 1
 	while is_running.isSet():
 		if not queue.empty():
 			pending_readings = get_data_in_queue()
@@ -98,11 +90,9 @@ def upload_daemon(name, is_running):
 				try:
 					response = requests.put(url, data = data)
 					logger.debug(response.text)
-				except requests.ConnectionError, e:
-					logger.warning(e)
-					queue.put_nowait(reading)
-					print queue.qsize()
-				
+				except requests.ConnectionError:
+					logger.warning('Could not connect to host. Discarding data: %s'%reading)
+
 		time.sleep(UPLOAD_INTERVAL)
 
 
@@ -127,12 +117,10 @@ if __name__ == "__main__":
 
 	args = parser.parse_args()
 
-	
-
 	try:
 		QUEUE_MAXSIZE = int(args.queue_size)
 	except ValueError:
-		print "Please specify an integer for the queue size"
+		logger.critical("Please specify an integer for the queue size")
 		os._exit(1)
 
 	HOST = args.host
@@ -140,19 +128,19 @@ if __name__ == "__main__":
 	try:
 		PORT = int(args.port)
 	except ValueError:
-		print "Please specify a port with an integer"
+		logger.critical("Please specify a port with an integer")
 		os._exit(1)
 
-	try:
+	try:	
 		BAUDRATE = int(args.baud)
 	except ValueError:
-		print "Please specify the baudrate of the serial port with an integer"
+		logger.critical("Please specify the baudrate of the serial port with an integer")
 		os._exit(1)
 
 	try:
 		UPLOAD_INTERVAL = int(args.upload_interval)
 	except ValueError:
-		print "Please specify the the number of seconds to wait between uploading data to the host as an integer"
+		logger.critical("Please specify the the number of seconds to wait between uploading data to the host as an integer")
 		os._exit(1)
 
 	try:
