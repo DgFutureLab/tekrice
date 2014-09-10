@@ -92,6 +92,7 @@ def upload_daemon(name, is_running):
 						response = requests.put(url, data = data)
 						logger.info('Sent data: %s'%data)
 						logger.debug(response.text)
+						response.close()
 					except requests.ConnectionError:
 						logger.warning('Could not connect to host. Discarding data: %s'%reading)
 				except KeyError:
