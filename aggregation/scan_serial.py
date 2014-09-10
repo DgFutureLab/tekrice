@@ -88,16 +88,14 @@ def upload_daemon(name, is_running):
 				url = get_url(reading['node_id'], reading['alias'])
 				try:
 					data = {'value' : reading['value'], 'timestamp' : reading['timestamp']}
-				except KeyError:
-					data = {}
-				if data:
 					try:
 						response = requests.put(url, data = data)
 						logger.info('Sent data: %s'%data)
 						logger.debug(response.text)
-						except requests.ConnectionError:
+					except requests.ConnectionError:
 						logger.warning('Could not connect to host. Discarding data: %s'%reading)
-
+				except KeyError:
+					pass
 		time.sleep(UPLOAD_INTERVAL)
 
 
