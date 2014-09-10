@@ -4,7 +4,7 @@ import re
 import requests
 import time
 import sys
-from Queue import Queue, Empty, Full
+from Queue import Queue, Full
 from threading import Thread, Event
 from logging import Logger, Formatter, StreamHandler
 from logging.handlers import RotatingFileHandler
@@ -20,33 +20,18 @@ streamhandler.setFormatter(formatter)
 logger.addHandler(filehandler)
 logger.addHandler(streamhandler)
 
-parser = ArgumentParser()
-parser.add_argument('--host', help = 'Server IP address e.g., 107.170.251.142', default = '127.0.0.1')
-parser.add_argument('--port', help = 'Port on the server', default = 8080)
-parser.add_argument('-b', '--baud', help = 'Serial port baud rate (default 57600)', default = 57600)
-parser.add_argument('-q', '--queue_size', help = 'The size of the queue that functions as a buffer between Serial-to-Internet', default = 100)
-parser.add_argument('-u', '--upload_interval', help = 'Interval in seconds (can be float) between uploading to the server', default = 1)
-parser.add_argument('-d', '--debug_level', help = 'Port on the server', default = 'INFO')
 
-args = parser.parse_args()
-logger.setLevel(args.debug_level)
-queue = Queue(100)
 
 def open_serial_device():
 	try:
 		device = '/dev/' + filter(lambda x: re.match('tty.usb*', x) or re.match('ttyUSB*', x), os.listdir('/dev'))[0]
-		serial_device = serial.Serial(device, args.baud, timeout = 5)
+		serial_device = serial.Serial(device, BAUDRATE, timeout = 5)
 		logger.debug('Opening device %s'%device)
 		return serial_device
 	except IndexError:
-		logger.fatal("Couldn't find any arduino devices. Are you sure it's plugged in? :)")
+		logger.fatal("Couldn't find any Arduino devices. Are you sure it's plugged in? :)")
 		os._exit(1)
 		
-
-
-def with_timestamp(message):
-	return str(time.time()) + ',' + message
-
 
 def parse_reading(reading):
 	try:
@@ -56,11 +41,9 @@ def parse_reading(reading):
 		for p in parsed: 
 			p.update({'node_id':addr})
 			p.update({'timestamp':datetime.now().strftime('%Y-%m-%d-%H:%M:%S:%f')})
-			
-
 		return parsed 
-	except Exception, e:
-		logger.exception(e)
+	except ValueError:
+		logger.exception('Recieved garbage from serial port: %s'%reading)
 		return []
 	
 
@@ -76,7 +59,6 @@ def read_serial(name, is_running):
 			logger.debug('From serial: %s'%reading)
 		except ValueError:
 			message = 'Problem reading serial port. Please try to run the program again!'	
-			print message
 			logger.fatal(message)
 			os._exit(1)
 
@@ -98,21 +80,21 @@ def read_serial(name, is_running):
 
 
 def upload_daemon(name, is_running):
-
 	logger.debug('Running %s daemon'%name)
-	node_id = 1
 	while is_running.isSet():
-		try:
-			data_list = get_data_in_queue()
-			for reading in data_list:
+		if not queue.empty():
+			pending_readings = get_data_in_queue()
+			for reading in pending_readings:
 				url = get_url(reading['node_id'], reading['alias'])
-				print url
 				data = {'value' : reading['value'], 'timestamp' : reading['timestamp']}
-				response = requests.put(url, data = data)
-				logger.info(response.text)
-		except Empty:
-			pass
-		time.sleep(args.upload_interval)
+				try:
+					response = requests.put(url, data = data)
+					logger.info('Sent data: %s'%data)
+					logger.debug(response.text)
+				except requests.ConnectionError:
+					logger.warning('Could not connect to host. Discarding data: %s'%reading)
+
+		time.sleep(UPLOAD_INTERVAL)
 
 
 def get_data_in_queue():
@@ -123,9 +105,57 @@ def get_data_in_queue():
 
 
 def get_url(node_id, sensor_alias):
-	return 'http://%s:%s/reading/%s/%s'%(args.host, args.port, node_id, sensor_alias)
+	return 'http://%s:%s/reading/node_%s/%s'%(HOST, PORT, node_id, sensor_alias)
 
 if __name__ == "__main__":
+	parser = ArgumentParser()
+	parser.add_argument('--host', help = 'Server IP address e.g., 107.170.251.142', default = '127.0.0.1')
+	parser.add_argument('--port', help = 'Port on the server', default = 8080)
+	parser.add_argument('-b', '--baud', help = 'Serial port baud rate (default 57600)', default = 57600)
+	parser.add_argument('-q', '--queue_size', help = 'The size of the queue that functions as a buffer between Serial-to-Internet', default = 100)
+	parser.add_argument('-u', '--upload_interval', help = 'Interval in seconds (can be float) between uploading to the server', default = 1)
+	parser.add_argument('-d', '--debug_level', help = 'Port on the server', default = 'INFO')
+
+	args = parser.parse_args()
+
+	try:
+		QUEUE_MAXSIZE = int(args.queue_size)
+	except ValueError:
+		logger.critical("Please specify an integer for the queue size")
+		os._exit(1)
+
+	HOST = args.host
+	
+	try:
+		PORT = int(args.port)
+	except ValueError:
+		logger.critical("Please specify a port with an integer")
+		os._exit(1)
+
+	try:	
+		BAUDRATE = int(args.baud)
+	except ValueError:
+		logger.critical("Please specify the baudrate of the serial port with an integer")
+		os._exit(1)
+
+	try:
+		UPLOAD_INTERVAL = int(args.upload_interval)
+	except ValueError:
+		logger.critical("Please specify the the number of seconds to wait between uploading data to the host as an integer")
+		os._exit(1)
+
+	try:
+		logger.setLevel(args.debug_level)	
+	except ValueError:
+		print "Please specify a valid debug level (DEBUG, INFO, WARNING, etc.)"
+		os._exit(1)
+
+
+
+
+	queue = Queue(QUEUE_MAXSIZE)
+	
+
 	logger.info('*******************************************************\n')
 	logger.info('Process id: %s', os.getpid())
 		

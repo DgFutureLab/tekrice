@@ -187,9 +187,11 @@ class ReadingResource(restful.Resource):
 		return response.json()
 
 
-
+### For administration
 rest_api.add_resource(SensorResource, '/sensor/<string:sensor_type>')
-rest_api.add_resource(ReadingResource, '/reading/<string:node_id>/<string:sensor_alias>')
+
+### For storing/accessing sensor readings
+rest_api.add_resource(ReadingResource, '/reading/node_<string:node_id>/<string:sensor_alias>')
 # rest_api.add_resource(ReadingResource, '/reading/sensor/<string:sensor_id>')
 
 
