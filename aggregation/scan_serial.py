@@ -89,6 +89,7 @@ def upload_daemon(name, is_running):
 				data = {'value' : reading['value'], 'timestamp' : reading['timestamp']}
 				try:
 					response = requests.put(url, data = data)
+					logger.info('Sent data: %s'%data)
 					logger.debug(response.text)
 				except requests.ConnectionError:
 					logger.warning('Could not connect to host. Discarding data: %s'%reading)
@@ -104,7 +105,7 @@ def get_data_in_queue():
 
 
 def get_url(node_id, sensor_alias):
-	return 'http://%s:%s/reading/%s/%s'%(HOST, PORT, node_id, sensor_alias)
+	return 'http://%s:%s/reading/node_%s/%s'%(HOST, PORT, node_id, sensor_alias)
 
 if __name__ == "__main__":
 	parser = ArgumentParser()
