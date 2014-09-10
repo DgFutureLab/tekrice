@@ -12,14 +12,17 @@ the aggregator as defined in "config.h"
 
 #include <chibi.h>
 #include "DHT.h"
-  
+
+/* Saboten includes
 #include <avr/sleep.h>
 #include <avr/power.h>
 #include <avr/wdt.h>
 #include <Wire.h>
 #include <SPI.h>
 #include <SdFat.h>
-#include <pcf2127.h>
+#include <pcf2127.h> */
+
+
 #include <NewPing.h>
 
 #define DHTTYPE DHT11   // Type of DHT sensor, in our case we are using DHT11
@@ -78,13 +81,19 @@ void loop()
   }
 
   // Read temperature
-  Reading temp = {"temperature", DHT.temperature, millis()};
-  add_to_tx_buf((char*)tx_buf, &temp);
-  
+  float temperature = DHT.temperature;  
+  if (temperature > 0) {
+    Reading temp = {"temperature", temperature, millis()};
+    add_to_tx_buf((char*)tx_buf, &temp);
+  }
+
   // Read humidity
-  Reading hum = {"humidity", DHT.humidity, millis()};
-  add_to_tx_buf((char*)tx_buf, &hum);
-  
+  float humidity = DHT.humidity;
+  if (humidity > 0) {
+    Reading hum = {"humidity", humidity , millis()};
+    add_to_tx_buf((char*)tx_buf, &hum);
+  }
+
   //Send data stored on "tx_buf" to collector
   chibiTx(AGGREGATOR_SHORT_ADDRESS, tx_buf, TX_LENGTH);
 
