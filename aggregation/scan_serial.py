@@ -103,7 +103,7 @@ def upload_daemon(name, is_running):
 def get_data_in_queue():
 	data_list = list()
 	while not queue.empty():
-		data_list.append( queue.get())
+		data_list.append( queue.get_nowait())
 	return data_list
 
 
