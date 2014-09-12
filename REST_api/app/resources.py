@@ -38,8 +38,8 @@ class Unit:
 readings = dict()
 import inspect
 class NodeResource(restful.Resource):
-	def get(self, uid):
-		node = Node.query.filter_by(uuid = uid).first()
+	def get(self, node_id):
+		node = Node.query.filter_by(id = node_id).first()
 		return {'node':node}
 
 	def post(self, uid):
@@ -49,7 +49,7 @@ class NodeResource(restful.Resource):
 			print type(alias)
 		
 		# try:
-		node = Node.create(uuid = uid)
+		node = Node.create()
 		return {'node': str(node)}
 		# return {'node': node.__repr__()}
 			# except IntegrityError:
@@ -192,6 +192,7 @@ rest_api.add_resource(SensorResource, '/sensor/<string:sensor_type>')
 
 ### For storing/accessing sensor readings
 rest_api.add_resource(ReadingResource, '/reading/node_<string:node_id>/<string:sensor_alias>')
+
 # rest_api.add_resource(ReadingResource, '/reading/sensor/<string:sensor_id>')
 
 

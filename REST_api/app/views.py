@@ -7,7 +7,8 @@ from flask_wtf import Form
 from wtforms import StringField
 from wtforms.validators import DataRequired
 from forms import NodeForm
-
+from resources import ApiResponse
+from satoyama.models import Node
 
 @flapp.route('/', methods = ['GET'])
 def index():
@@ -29,6 +30,14 @@ def format_data(sensor_data):
 	for reading in sensor_data: reading.update({'time': datetime.datetime.fromtimestamp(float(reading['time'])).strftime('%Y-%m-%d %H:%M:%S')})
 	sensor_data = map(lambda d: ', '.join(['%s: %s'%(k,v) for k,v in d.items()]), sensor_data)
 	return sensor_data
+
+@flapp.route('/nodes/all', methods = ['GET'])
+def get_all_nodes():
+	response = ApiResponse(request)
+	nodes = Node.query.all()
+	return json.dumps(map(lambda n: n.json_detailed(), nodes))
+
+
 
 '''
 	Admin tool
