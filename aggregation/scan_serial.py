@@ -76,7 +76,7 @@ def read_serial(name, is_running):
 					try:
 						logger.warning('Full queue. Discarding data: %s'%(queue.qsize(), discarded_reading))
 					except TypeError:
-						logger.warning('Full queue. Discarded'
+						logger.warning('Full queue. Discarded')
 					
 		
 		logger.debug('Data from serial: %s'%reading)
