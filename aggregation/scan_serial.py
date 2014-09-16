@@ -72,9 +72,12 @@ def read_serial(name, is_running):
 					queue.put_nowait(p)
 				except Full:
 					discarded_reading = queue.get_nowait()
-					logger.warning('Full queue. Discarding data: %s'%(queue.qsize(), discarded_reading))
 					queue.put_nowait(p)
-			
+					try:
+						logger.warning('Full queue. Discarding data: %s'%(queue.qsize(), discarded_reading))
+					except TypeError:
+						logger.warning('Full queue. Discarded'
+					
 		
 		logger.debug('Data from serial: %s'%reading)
 		time.sleep(0.1)
@@ -106,9 +109,8 @@ def upload_daemon(name, is_running):
 def get_data_in_queue():
 	data_list = list()
 	print 'QUEUE_SIZE BEFORE', queue.qsize()
-	# while not queue.empty():
 	for i in range(queue.qsize()):
-		data_list.append( queue.get_nowait())
+		data_list.append( queue.get_nowait() )
 	print 'QUEUE_SIZE AFTER', queue.qsize()
 	return data_list
 
