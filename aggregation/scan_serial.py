@@ -66,11 +66,14 @@ def read_serial(name, is_running):
 		if reading != previous_reading:
 			previous_reading = reading
 			parsed_reading = parse_reading(reading)
-			for p in parsed_reading:
+			for i, p in enumerate(parsed_reading):
+				print i
 				try:
 					queue.put_nowait(p)
 				except Full:
-					logger.warning('Full queue. Discarding data: %s'%p)
+					discarded_reading = queue.get_nowait()
+					logger.warning('Full queue. Discarding data: %s'%(queue.qsize(), discarded_reading))
+					queue.put_nowait(p)
 			
 		
 		logger.debug('Data from serial: %s'%reading)
@@ -102,8 +105,11 @@ def upload_daemon(name, is_running):
 
 def get_data_in_queue():
 	data_list = list()
-	while not queue.empty():
+	print 'QUEUE_SIZE BEFORE', queue.qsize()
+	# while not queue.empty():
+	for i in range(queue.qsize()):
 		data_list.append( queue.get_nowait())
+	print 'QUEUE_SIZE AFTER', queue.qsize()
 	return data_list
 
 
@@ -153,22 +159,16 @@ if __name__ == "__main__":
 		print "Please specify a valid debug level (DEBUG, INFO, WARNING, etc.)"
 		os._exit(1)
 
-
-
-
 	queue = Queue(QUEUE_MAXSIZE)
 	
-
 	logger.info('*******************************************************\n')
 	logger.info('Process id: %s', os.getpid())
 		
 	is_running = Event()
 	is_running.set()
-
 	
 	serial_reader = Thread(target = read_serial, args = ('Serial reader', is_running), name = 'SERIAL READER')
 	serial_reader.start()
-
 
 	if args.host:
 		uploader = Thread(target = upload_daemon, args = ('Data sender', is_running), name = 'UPLOADER')
