@@ -10,8 +10,10 @@ from logging import Logger, Formatter, StreamHandler
 from logging.handlers import RotatingFileHandler
 from argparse import ArgumentParser
 from datetime import datetime
-logger = Logger(__name__)
+import zlib
+import json
 
+logger = Logger(__name__)
 filehandler = RotatingFileHandler('log.txt', maxBytes = 10**6)
 streamhandler = StreamHandler(sys.stdout)
 formatter = Formatter('%(asctime)s - %(thread)d - %(levelname)s - %(message)s')
@@ -89,33 +91,33 @@ def upload_daemon(name, is_running):
 	logger.debug('Running %s daemon'%name)
 	while is_running.isSet():
 		if not queue.empty():
-			pending_readings = get_data_in_queue()
-			logger.info('Number of pending readings: %s'%len(pending_readings))
-			print 'Queue size: %s'%queue.qsize()
-			for reading in pending_readings:
-				if reading['alias'] == 'distance':
-					url = get_url(reading['node_id'], reading['alias'])
-					try:
-						data = {'value' : reading['value'], 'timestamp' : reading['timestamp']}
-						try:
-							response = requests.put(url, data = data)
-							logger.info('Sent data: %s to url: %s'%(data, url))
-							logger.debug(response.text)
-							response.close()
-						except requests.ConnectionError:
-							logger.warning('Could not connect to host. Discarding data: %s'%reading)
-					except KeyError:
-						pass
+			request_payload = prepare_data_in_queue()
+			compressed_payload = compress_data(request_payload)
+			try:
+				response = requests.post(URL, data = compressed_payload)
+				logger.info('Sent %s bytes of data and got response: %s'%(sys.getsizeof(compressed_payload), response))
+			except requests.ConnectionError:
+				logger.warning('Could not connect to host. Discarding data: %s'%request_payload)
+			finally:
+				response.close()
+		
 		time.sleep(UPLOAD_INTERVAL)
 
 
-def get_data_in_queue():
-	data_list = list()
-	#print 'QUEUE_SIZE BEFORE', queue.qsize()
+def compress_data(json_data):
+	return zlib.compress(json.dumps(json_data))
+
+
+def prepare_data_in_queue():
+	request_payload = list()
 	for i in range(queue.qsize()):
-		data_list.append( queue.get_nowait() )
-	#print 'QUEUE_SIZE AFTER', queue.qsize()
-	return data_list
+		reading =  queue.get_nowait()
+		try:
+			d = {'value' : reading['value'], 'timestamp' : reading['timestamp']}
+		except KeyError, e:
+			logger.exception(e)
+		request_payload.append(d)
+	return request_payload
 
 
 def get_url(node_id, sensor_alias):
@@ -161,8 +163,11 @@ if __name__ == "__main__":
 	try:
 		logger.setLevel(args.debug_level)	
 	except ValueError:
-		print "Please specify a valid debug level (DEBUG, INFO, WARNING, etc.)"
+		logger.critical("Please specify a valid debug level (DEBUG, INFO, WARNING, etc.)")
 		os._exit(1)
+
+
+	URL = 'http://%s:%s/reading/batch'%(HOST, PORT)
 
 	queue = Queue(QUEUE_MAXSIZE)
 	
