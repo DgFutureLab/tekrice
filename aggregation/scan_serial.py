@@ -96,10 +96,10 @@ def upload_daemon(name, is_running):
 			try:
 				response = requests.post(URL, data = compressed_payload)
 				logger.info('Sent %s bytes of data and got response: %s'%(sys.getsizeof(compressed_payload), response))
+				response.close()
 			except requests.ConnectionError:
 				logger.warning('Could not connect to host. Discarding data: %s'%request_payload)
-			finally:
-				response.close()
+				
 		
 		time.sleep(UPLOAD_INTERVAL)
 
@@ -111,12 +111,7 @@ def compress_data(json_data):
 def prepare_data_in_queue():
 	request_payload = list()
 	for i in range(queue.qsize()):
-		reading =  queue.get_nowait()
-		try:
-			d = {'value' : reading['value'], 'timestamp' : reading['timestamp']}
-		except KeyError, e:
-			logger.exception(e)
-		request_payload.append(d)
+		request_payload.append(queue.get_nowait())
 	return request_payload
 
 
