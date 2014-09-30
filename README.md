@@ -84,6 +84,9 @@ Use Satoyama API. It’s more or less ready for what we need.
 - keyword is low-cost, so the one Chris showed us on hacker farm is probably too expensive (he said it was around 200USD, right?)
 - We don’t need long range, but diffusion should be less than the ones we’re using now (right?)
 
+##Topology stuff 
+-Manually assigning addresses to the nodes is a pain, so let’s make the nodes scan for available addresses and pick one. The aggregator can broadcast a specially prefixed message with a payload of free addresses.
+-What’s the address space in Chibi?
 
 
 
