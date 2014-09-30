@@ -46,3 +46,42 @@ This is how our setup looks with two temperature sensor nodes:
 For the data collection nodes we are using [Freakduinos v2.1a] (http://www.freaklabs.org/index.php/Tutorials/Hardware/Assembling-the-Freakduino-v2.1a.html) . We use the [chibi Arduino](https://github.com/freaklabs/chibiArduino) lightweight 802.15.4 protocol stack.
 
 The sensors used to measure the water level are [Parallax PING))) Ultrasonic Distance Sensor (#28015)](http://www.parallax.com/sites/default/files/downloads/28015-PING-Sensor-Product-Guide-v2.0.pdf)
+
+
+# Things to do for initial test-deployment in November
+
+Trial run: Have the system run for a week without fail
+Let’s deploy a saboten on the DG roof. If range is a problem we can leave the edge node of Dave’s desk, or Hector can sneak it into Hayashisans office next time he has a meeting there.
+
+
+Backend - Use Satoyama API. It’s more or less ready for what we need. 
+
+
+Edge node improments
+
+
+  1. Still some stability issues that are buggering the hell out of me
+
+  2. Fuck the admins and let’s get a 3G shield. We’ll need it for deployment anyway.
+
+Sensor nodes
+
+
+  1. Figure out how use the PCF2127AT to do local timestamping
+  2. Decrease transmission interval
+  3. Power management - sleep between transmitting
+
+
+
+Release the system into the wild
+
+
+  1. Saboten nodes
+  2. 
+    1. Battery lifetime of saboten with solar panel
+  3. Decide location for edge node
+  4. 
+    1. Requires access to power grid
+
+
+
