@@ -50,14 +50,14 @@ The sensors used to measure the water level are [Parallax PING))) Ultrasonic Dis
 
 # Things to do for initial test-deployment in November
 
-Trial run: Have the system run for a week without fail
+##Trial run - Have the system run for a week without fail
 Let’s deploy a saboten on the DG roof. If range is a problem we can leave the edge node of Dave’s desk, or Hector can sneak it into Hayashisans office next time he has a meeting there.
 
 
-Backend - Use Satoyama API. It’s more or less ready for what we need. 
+###Backend - Use Satoyama API. It’s more or less ready for what we need. 
 
 
-Edge node improments
+###Edge node improments
 
 
   1. Still some stability issues that are buggering the hell out of me
