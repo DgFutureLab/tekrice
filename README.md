@@ -54,34 +54,23 @@ The sensors used to measure the water level are [Parallax PING))) Ultrasonic Dis
 Let’s deploy a saboten on the DG roof. If range is a problem we can leave the edge node of Dave’s desk, or Hector can sneak it into Hayashisans office next time he has a meeting there.
 
 
-###Backend - Use Satoyama API. It’s more or less ready for what we need. 
+###Backend
+Use Satoyama API. It’s more or less ready for what we need. 
 
 
 ###Edge node improments
+- Still some stability issues that are buggering the hell out of me
+- Fuck the admins and let’s get a 3G shield. We’ll need it for deployment anyway.
 
+### Sensor nodes
+- Figure out how use the PCF2127AT to do local timestamping
+- Decrease transmission interval
+- Power management - sleep between transmitting
 
-  1. Still some stability issues that are buggering the hell out of me
-
-  2. Fuck the admins and let’s get a 3G shield. We’ll need it for deployment anyway.
-
-Sensor nodes
-
-
-  1. Figure out how use the PCF2127AT to do local timestamping
-  2. Decrease transmission interval
-  3. Power management - sleep between transmitting
-
-
-
-Release the system into the wild
-
-
-  1. Saboten nodes
-  2. 
-    1. Battery lifetime of saboten with solar panel
-  3. Decide location for edge node
-  4. 
-    1. Requires access to power grid
+### Release the system into the wild
+- Test battery lifetime of saboten with solar panel
+- Decide location for edge node
+-- Requires access to power grid
 
 
 
