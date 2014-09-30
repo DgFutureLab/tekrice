@@ -72,5 +72,18 @@ Use Satoyama API. It’s more or less ready for what we need.
 - Decide location for edge node
 -- Requires access to power grid
 
+### Long term plan
+
+
+##PCB improvements
+- GPS chip for automatically transmitting node position on power-up, or on request from api
+- GPS should of course be turned off most of the time.
+
+
+## Sonar 
+- keyword is low-cost, so the one Chris showed us on hacker farm is probably too expensive (he said it was around 200USD, right?)
+- We don’t need long range, but diffusion should be less than the ones we’re using now (right?)
+
+
 
 
