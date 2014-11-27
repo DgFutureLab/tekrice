@@ -38,16 +38,25 @@ def open_serial_device():
 		
 
 def parse_reading(reading):
+        if reading == "": return []
+
 	try:
+                #logger.info("Parsing reading: '%s'"%reading)
 		addr, payload = reading.split('@')
 		addr = addr[1:]
+		if addr == 0:
+                        logger.warning('Discarding data from invalid node 0')
+                        return []
 		parsed = map(lambda y: dict(zip(['alias', 'value', 'timestamp'], y)), map(lambda x: x.split(':'), payload[:-3].split(';')))
-		for p in parsed: 
+                logger.info('Parsed %s readings.'%len(parsed))
+		for p in parsed:
+                        logger.debug("Reading from node %s: %s."%(addr, p))
 			p.update({'node_id':addr})
 			p.update({'timestamp':datetime.now().strftime('%Y-%m-%d-%H:%M:%S:%f')})
 		return parsed 
 	except ValueError:
-		logger.exception('Recieved garbage from serial port: %s'%reading)
+		#logger.exception('Recieved garbage from serial port: %s'%reading)
+                logger.exception('Recieved garbage from serial port.')
 		return []
 	
 
@@ -84,10 +93,13 @@ def read_serial(name, is_running):
 					
 		
 		logger.debug('Data from serial: %s'%reading)
-		time.sleep(0.1)
+		#time.sleep(0.1)
 	
+        logger.info("CLOSING SERIAL PORT")
 	serial_connection.close()
 
+def get_timeout(data_size):
+        return 0.1 * float(data_size)
 
 def upload_daemon(name, is_running):
 	logger.debug('Running %s daemon'%name)
@@ -96,11 +108,14 @@ def upload_daemon(name, is_running):
 			request_payload = prepare_data_in_queue()
 			#logger.info(pprint(request_payload))
 			compressed_payload = compress_data(request_payload)
+			data_size = sys.getsizeof(compressed_payload)
+			timeout = get_timeout(data_size)
+			print timeout
 			try:
                                 n_readings = len(request_payload)
                                 data_hash = hash(frozenset(map(frozenset, request_payload)))
-                                logger.info("Data hash: %s (Attempt upload). Bytes: %s"%(data_hash, sys.getsizeof(compressed_payload)))
-				response = requests.post(URL, data = compressed_payload)
+                                logger.info("Data hash: %s (Attempt upload). Bytes: %s. Timeout is %f seconds."%(data_hash, data_size, data_size))
+				response = requests.post(URL, data = compressed_payload, timeout = timeout)
                                 if response.ok:
                                         logger.info("Data hash: %s (Upload SUCCESS, status code: %s)."%(data_hash, response.status_code))
                                 else:
@@ -109,10 +124,11 @@ def upload_daemon(name, is_running):
 				#logger.info('Sent %s bytes of data and got response: %s'%(sys.getsizeof(compressed_payload), response.text))
 				response.close()
 			except requests.ConnectionError:
-				logger.warning('Could not connect to host. Discarding data: %s'%request_payload)
+				logger.warning('ConnectionError. Discarding %s bytes of data.'%data_size)
+			except requests.Timeout:
+                                logger.warning('Timeout. Discarding %s bytes of data.'%data_size)
 		else:		
-                        
-		time.sleep(UPLOAD_INTERVAL)
+                        time.sleep(UPLOAD_INTERVAL)
                 
 
 def compress_data(json_data):
