@@ -102,5 +102,5 @@ void loop()
 
   free(tx_buf);
   //Wait
-  delay(1000);
+  delay(30*1000);
 }
