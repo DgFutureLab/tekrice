@@ -118,7 +118,7 @@ void setup()
   chibiCmdAdd("slm", cmdSleepMcu);
   chibiCmdAdd("sdw", cmdSdWrite);
   chibiCmdAdd("time", cmdWriteTime);
-  chibiCmdAdd("rtime", cmdReadTime);
+  chibiCmdAdd("rtime", cmdReadTime);  // Read time
   chibiCmdAdd("date", cmdWriteDate);
   chibiCmdAdd("bat", cmdVbatRead);
   chibiCmdAdd("sol", cmdVsolRead);
