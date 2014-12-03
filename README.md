@@ -1,5 +1,7 @@
-TekRice
+Techrice
 ===================
+
+Techrice is an open data sensor network based in Kamogawa, Japan. Techrice wants to help local farmers monitoring rice fields water levels.
 
 Star topology sensor network designed using Freaklabs open hardware. Hatake (畑) is the Japanese name for "rice field". This repository contains the code for a system designed to monitor the water level in rice fields and upload the data to a server.
 
